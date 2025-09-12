@@ -1,0 +1,154 @@
+/* ------------ Базов модал ------------ */
+.modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.5); z-index: 1000; }
+.modal.hidden { display: none !important; }
+.modal-content { position: relative; background: transparent; color: #111827; width: 80vw; max-width: 900px; max-height: 80vh; border-radius: 16px; padding: 1.2rem; overflow: auto; }
+.modal-content--natal { width: 80vw; max-width: 1000px; }
+.modal-close { position: absolute; top: .5rem; right: .8rem; border: 0; background: none; font-size: 2rem; line-height: 1; cursor: pointer; color: #4c1d95; }
+
+.modal-title{ margin: 0 0 .75rem; font-weight: 800; color: #4c1d95; }
+.modal-title--big{ font-size: clamp(1.4rem,2.2vw,2rem); letter-spacing: .05em; text-transform: uppercase; }
+
+.hidden{ display: none !important; }
+
+/* ------------ Голям ред – селект на профили + „или“ + бутон ------------ */
+.chooser { display: grid; grid-template-columns: 1fr auto auto; gap: .75rem; align-items: center; margin-bottom: .75rem; }
+.profile-select-big {
+  width: 100%; padding: 1rem 1.25rem; font-size: 1.05rem; font-weight: 700;
+  border: 2px solid #e5e7eb; border-radius: 48px; background: #fff; appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='none' stroke='%235b21b6' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat; background-position: right 1.2rem center; background-size: 1.1rem; padding-right: 3rem;
+  }
+.profile-select-big:hover{ transition: box-shadow .2s; }
+.chooser-or{ color:#4c1d95; font-weight: 800; }
+
+/* ------------ Формата ------------ */
+.birth-form { display: flex; flex-direction: column; gap: .9rem; margin-top: .25rem; }
+.form-grid { display: grid; grid-template-columns: 140px 1fr; gap: .6rem .9rem; }
+.lbl{ align-self: center; font-weight: 700; color:#4c1d95; text-transform: lowercase; }
+.inp{ width: 100%; padding: .6rem .8rem; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 1rem; }
+.row-inline{ display: flex; align-items: center; gap: .6rem; }
+.chk{ display:flex; align-items:center; gap:.35rem; font-size:.9rem; color:#374151; }
+
+.city-row{ display:flex; gap:.6rem; align-items:center; }
+.city-dropdown-wrap{ margin-top:.25rem; }
+.city-dropdown{
+  width:100%; border:2px solid #cbd5e1; border-radius:12px; padding:.6rem .8rem; font-size:1rem; background:#fff;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='none' stroke='%235b21b6' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat:no-repeat; background-position:right .8rem center; background-size:1.1rem;
+  max-height: 220px; overflow:auto;
+}
+
+/* ------------ Бутони ------------ */
+.btns-row{ display:flex; gap:.6rem; justify-content:flex-end; margin-top:.5rem; }
+.cta{ border:0; padding:.7rem 1.25rem; border-radius:12px; cursor:pointer; font-weight:800; }
+.cta.small{ padding:.5rem .9rem; font-size:.95rem; }
+.cta.primary{ background:#4c1d95; color:#fff; }
+.cta.primary[disabled]{ background:#c7bdfb; color:#fff; cursor:not-allowed; }
+.cta.danger{ background:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
+.cta.danger[disabled]{ background:#f5f5f5; color:#9ca3af; border-color:#e5e7eb; cursor:not-allowed; }
+.cta.muted{ background:#f3f4f6; color:#374151; }
+.cta.outline{ background:#fff; color:#4c1d95; border:2px solid #5b21b6; }
+
+/* ------------ Респонсив ------------ */
+@media (max-width: 900px){
+  .modal-content{ width:95vw; max-width:95vw; }
+  .form-grid{ grid-template-columns: 1fr; }
+  .lbl{ justify-self: start; }
+}
+.result-title{color:#fff;}
+
+/* ------------ Кредити: чип на бутона ------------ */
+.credit-chip{
+  display:inline-flex; align-items:center; gap:.35rem;
+  padding:.15rem .5rem; margin-left:.5rem;
+  border-radius:999px; background:transparent; color:#4c1d95; font-weight:800;
+  }
+.credit-chip .amt{ color:#fff;  font-weight:900; line-height:1; }
+.credit-chip img{ width:36px; height:36px; display:inline-block; }
+
+/* ------------ Модал за потвърждение на кредити ------------ */
+.modal-content.credit-modal{
+  background: linear-gradient(135deg, #ffffff 0%, #f6f4ff 100%);
+  max-width: 560px;
+  padding: 1rem 1.1rem 1rem;
+  border: 2px solid #e9e5ff;
+}
+.credit-lines{
+  background:#fff; border:2px solid #ecebff; border-radius:16px;
+  padding:.9rem 1rem; color:#111827; margin-bottom:.75rem;
+}
+.credit-lines .line{ margin:.35rem 0; font-weight:700; }
+.credit-lines .line .ico{ width:18px; height:18px; vertical-align:-3px; margin:0 4px; }
+.credit-lines .warn{ color:#7c3aed; }
+.credit-insuff{
+  margin-top:.5rem; padding:.55rem .75rem; border-radius:12px;
+  background:#fee2e2; color:#991b1b; border:1px solid #fecaca; font-weight:800;
+}
+#confirmChargeBtn[disabled]{ opacity:.6; cursor:not-allowed; }
+
+
+/* Result stage */
+.result.hidden{ display:none; }
+.result{ width:100%; display:flex; flex-direction:column; align-items:center; gap:1.2rem; }
+.result-title{
+  color:#fff; font-weight:900; text-align:center;
+  font-size: clamp(1.6rem, 5.2vw, 3.4rem);
+  white-space:pre-wrap;
+  text-shadow:0 6px 18px rgba(0,0,0,.35);
+}
+.result-wrap{
+  width:min(92vw, 1100px);
+  position: relative;
+  background: rgba(40, 9, 57, 0.4);
+  color:#fff;
+  border-radius: 18px;
+  box-shadow:0 18px 46px rgba(0,0,0,.35);
+  padding:1rem 1.25rem 1.25rem 1.25rem;
+}
+
+/* Chart floats top-left so text wraps to the right, then flows under it */
+.result-chart{
+  float: left;
+  width: min(36vw, 320px);
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.35);
+  margin: 0 1.1rem .9rem 0;   /* space to the right and below */
+}
+
+/* Text should start right of the chart, then continue full width under it */
+.result-text{
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* Contain the float */
+.result-wrap::after{
+  content: "";
+  display: table;
+  clear: both;
+}
+
+@media (max-width: 860px){
+  .result-chart{
+    float: none;
+    display: block;
+    margin: 0 auto 1rem;
+    width: min(78vw, 440px);
+  }
+}
+
+/* Natal modal button layout */
+#natalModal .btns-row{
+  display: grid !important;
+  grid-template-columns: auto auto;
+  grid-auto-rows: auto;
+  justify-content: end;
+  align-items: center;
+  gap: 8px 8px;
+  margin-top: 60px !important; /* 60px разстояние към полето за град */
+}
+#natalModal #saveChoose{ grid-column: 1 / -1; }  /* SAVE на първи ред */
+#natalModal #deleteProfile{ grid-column: 1; }    /* DELETE под SAVE, вляво */
+#natalModal #clearForm{ grid-column: 2; }        /* CLEAR под SAVE, вдясно */
+#natalModal .btns-row .cta{ min-width:120px; justify-self:end; }

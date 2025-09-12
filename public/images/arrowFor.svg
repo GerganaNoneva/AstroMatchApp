@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Transparent background -->
+  <defs/>
+  <!-- Outer ring -->
+  <circle cx="512" cy="512" r="460" fill="none" stroke="#9B4CFF" stroke-width="48"/>
+  <!-- Inner circle -->
+  <circle cx="512" cy="512" r="420" fill="#4C1D95"/>
+  <!-- Arrow (white) -->
+  <g fill="#FFFFFF">
+    <!-- shaft -->
+    <rect x="220" y="462" width="340" height="100" rx="16" ry="16"/>
+    <!-- head -->
+    <path d="M 560 362 L 760 512 L 560 662 Z"/>
+  </g>
+  <!-- Heart (white) -->
+  <path fill="#FFFFFF" d="
+    M 690 640
+    C 730 640, 760 668, 760 708
+    C 760 760, 712 802, 640 860
+    C 568 802, 520 760, 520 708
+    C 520 668, 550 640, 590 640
+    C 616 640, 632 652, 640 664
+    C 648 652, 664 640, 690 640 Z"/>
+</svg>

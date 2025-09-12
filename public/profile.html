@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html lang="bg">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#9b8cff" name="theme-color"/>
+<link href="images/heartLogo.gif" rel="icon" type="image/gif"/>
+<title>Профил</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Libertinus+Sans:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="styles.css" rel="stylesheet"/>
+<link href="profile.css" rel="stylesheet"/>
+<link href="responsive-mobile.css?v=5" rel="stylesheet"/>
+<!-- за да изглежда като natal формата -->
+<link href="natal.css" rel="stylesheet"/>
+<link href="began.css?v=profile" rel="stylesheet"/>
+
+</div>
+
+<style id="patch-profile-modals-mobile">
+
+/* === Mobile modal parity with began.html === */
+@media (max-width: 600px){
+  #myDataModal .modal-content,
+  #profilesModal .modal-content{
+    width: min(96vw, 520px);
+    /*max-height: 90vh;*/
+    height: auto;
+    overflow: auto;
+    border-radius: 20px;
+    padding: 14px 16px;
+    margin: 0 auto;
+  }
+  #myDataModal, #profilesModal{
+    align-items: center;
+    justify-content: center;
+    padding-top: 0;
+  }
+    #myDataModal, #profilesModal{
+    display: grid;
+    place-items: center;
+    padding-top: 0;
+  }
+
+  @media (max-width: 600px){
+  /* Полетата – вертикално, почти от край до край */
+  #profilesContent .pm-row{
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px;
+  }
+  #profilesContent .pm-row > label{
+    min-width: 0 !important;
+    margin-bottom: 2px;
+  }
+  #profilesContent .pm-row input[type="text"],
+  #profilesContent .pm-row input[type="date"],
+  #profilesContent .pm-row input[type="time"],
+  #profilesContent .pm-city-search input{
+    width: 100% !important;
+    flex: 0 0 auto !important;
+    box-sizing: border-box;
+  }
+  /* "Град" редът – бутонът до инпута да не чупи ширината */
+  #profilesContent .pm-row-city .pm-city-search{
+    gap: 8px;
+    align-items: stretch;
+  }
+  #profilesContent .pm-row-city .pm-city-search .pm-btn{
+    flex: 0 0 auto;
+  }
+
+  /* Бутоните да са по-надолу */
+  #profilesContent .pm-actions{
+    margin-top: 22px !important; /* ↑ малко повече разстояние */
+  }
+
+  /* По желание: леко по-широк контейнер за още "открай до край" усещане */
+  #profilesModal .modal-content{
+    width: min(96vw, 520px); /* можеш да върнеш на 92vw ако искаш по-тесен */
+    padding: 16px 14px;
+  }
+}
+@media (max-width: 600px){
+  /* Час + DST една под друга */
+  #profilesContent .pm-row-time .pm-time-row{
+    display: flex;
+    flex-direction: column;   /* ↓ премества DST отдолу */
+    align-items: stretch;
+    gap: 6px;
+  }
+  #profilesContent .pm-row-time .pm-time-row input[type="time"]{
+    width: 100%;
+    box-sizing: border-box;
+  }
+  /* Самата отметка – без отместване наляво, да „стъпи“ по ширина */
+  #profilesContent .pm-row-time .pm-dst{
+    margin: 0;
+    line-height: 1.2;
+  }
+}
+
+}
+
+</style>
+</head>
+<body class="profile-page">
+<header class="profile-header">
+  <div id="profilePic" class="avatar" role="button" aria-label="Потребител"></div>
+</header>
+<div id="profileMenu" class="hidden" role="menu" aria-label="Потребителско меню"></div>
+
+
+  
+<!-- My Data modal (empty same-sized shell, same as began.html) -->
+<!-- My Data modal (same ids as expected by profile.js) -->
+<div aria-modal="true" class="modal hidden" id="myDataModal" role="dialog">
+<div class="modal-content" id="myDataContent"></div>
+</div>
+<section class="video-grid">
+<a class="video-item" href="natal.html">
+<video muted="" playsinline="" preload="auto" src="videos/natal2.mp4"></video>
+<p>НАТАЛНА</p>
+</a>
+<a class="video-item" href="synastry.html">
+<video muted="" playsinline="" preload="auto" src="videos/sinastry2.mp4"></video>
+<p>СИНАСТРИЯ</p>
+</a>
+<a class="video-item" href="prognostika.html">
+<video muted="" playsinline="" preload="auto" src="videos/prognostika2.mp4"></video>
+<p>ПРОГНОСТИКА</p>
+</a>
+<a class="video-item" href="horary.html">
+<video muted="" playsinline="" preload="auto" src="videos/horary2.mp4"></video>
+<p>ХОРАРНА</p>
+</a>
+</section>
+<!-- МОДАЛ 1: „Данни“ -->
+<!-- МОДАЛ 2: „Добави профил“ -->
+<div class="modal hidden" id="addProfileModal">
+<div class="modal-content">
+<button aria-label="Затвори" class="modal-close">×</button>
+<h2 class="modal-title">Въведи рожденни данни:</h2>
+<form class="birth-form" id="addProfileForm">
+<div class="form-group">
+<label for="addName">Име</label>
+<input id="addName" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="addDate">Дата на раждане</label>
+<input id="addDate" required="" type="date"/>
+</div>
+<div class="form-group">
+<label for="addTime">Час на раждане</label>
+<input id="addTime" required="" type="time"/>
+</div>
+<div class="form-group">
+<label for="addCity">Град (латиница)</label>
+<div class="row-inline">
+<input id="addCity" placeholder="e.g. Sofia" type="text"/>
+<button class="cta small" id="addSearchCityBtn" type="button">ТЪРСИ</button>
+</div>
+<select class="hidden" id="addCityResults" size="5"></select>
+</div>
+<div class="form-group row-inline">
+<input id="addDST" type="checkbox"/>
+<label for="addDST">Лятно часово време</label>
+</div>
+<button class="cta" id="addSaveBtn" type="submit">ЗАПАЗИ</button>
+</form>
+</div>
+</div>
+<!-- МОДАЛ 3: „Управление на профили“ -->
+</div>
+  <!-- Плаващ чат бутон (същият като на began) -->
+  <button id="chatFab" class="chat-fab" aria-label="Отвори чат">
+    <img src="/images/icons/mercury.png" alt="AstroChat" />
+  </button>
+
+  <!-- Прозорец на чата (същият като на began) -->
+  <div id="chatPopup" class="chat-popup" role="dialog" aria-modal="true" aria-label="Астрологичен чат">
+    <div class="chat-head">
+      <h3>AstroChat</h3>
+      <button id="chatClose" title="Затвори">✕</button>
+    </div>
+    <div id="chatLog" class="chat-log" aria-live="polite"></div>
+    <form id="chatForm" class="chat-form">
+      <input id="chatInput" class="chat-input" type="text" placeholder="Луна в Рак в 5 дом…" />
+      <button class="chat-send">Изпрати</button>
+    </form>
+  </div>
+
+
+
+<!-- chat typing animation (Messenger-like) -->
+<style id="chat-typing-style">
+/* Scope to chat only */
+#chatPopup .msg.typing .text{
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 44px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111827;
+}
+#chatPopup .msg.typing .text .dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c2c8d0;
+  display: inline-block;
+  animation: chat-bounce 1.15s ease-in-out infinite;
+}
+#chatPopup .msg.typing .text .dot:nth-child(2){ animation-delay: .12s; }
+#chatPopup .msg.typing .text .dot:nth-child(3){ animation-delay: .24s; }
+
+/* === Chat widget (same as began) === */
+
+.chat-popup {
+  position: fixed;
+  right: 20px;
+  bottom: 84px; /* над бутона */
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  height: 480px;
+  max-height: calc(100vh - 120px);
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+  z-index: 99999;
+  display: none;
+  flex-direction: column;
+}
+.chat-popup.open { display: flex; }
+.chat-head{ background: linear-gradient(135deg,#6c5ce7 0%, #9b8cff 100%); color:#fff; padding:12px 12px; display:flex; align-items:center; gap:10px; }
+.chat-head h3{ font:600 13px/1.2 system-ui, Segoe UI, Roboto, Arial; margin:0; flex:1; letter-spacing:.2px; }
+.chat-head button{ border:0; background:rgba(255,255,255,.18); color:#fff; width:28px; height:28px; border-radius:8px; cursor:pointer; }
+.chat-log{ flex:1; padding:12px 12px 14px; overflow:auto; background: linear-gradient(180deg,#f8f6ff 0%, #f3f0ff 100%); }
+.msg{ margin:8px 0; display:flex; gap:8px; align-items:flex-end; }
+.msg .role{ font-size:10px; color:#888; margin-bottom:3px; }
+.msg .text{ max-width:80%; white-space:pre-wrap; font:13px/1.45 system-ui, Segoe UI, Roboto, Arial; background:#fff; border:1px solid #eee; border-radius:14px; padding:8px 10px; box-shadow:0 2px 10px rgba(17,12,46,.06); }
+.chat-form{ display:flex; gap:8px; padding:10px; border-top:1px solid #eee; background:#fff; }
+.chat-input{ flex:1; padding:10px; border:1px solid #ddd; border-radius:10px; font:14px/1.2 system-ui, Segoe UI, Roboto, Arial; }
+.chat-send{ padding:10px 14px; border-radius:10px; border:0; background:#111; color:#fff; cursor:pointer; font-size:13px; }
+@media (max-width: 480px){
+  .chat-popup{ right:12px; bottom:80px; width:calc(100vw - 24px); height:60vh; }
+}
+.chat-fab{
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  z-index: 100000; /* по-висок от всичко друго */
+  padding: 0;
+  background: linear-gradient(135deg, #ffb37a 0%, #ff5ca8 100%);
+  box-shadow: 0 10px 25px rgba(0,0,0,.25);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.chat-fab img{ width:100%; height:100%; border-radius:50%; display:block; }
+.chat-fab:hover{ transform: translateY(-2px); box-shadow: 0 14px 30px rgba(0,0,0,.3); }
+.msg.user{ justify-content:flex-end; }
+.msg.user .text{ background: linear-gradient(135deg,#6c5ce7 0%, #9b8cff 100%); color:#fff; border: none; box-shadow: 0 4px 16px rgba(108,92,231,.25); border-bottom-right-radius:6px; border-top-left-radius:16px; border-top-right-radius:16px; border-bottom-left-radius:16px; }
+.msg.bot .text{ background:#fff; color:#1b1630; border:1px solid #ece7ff; border-bottom-left-radius:6px; border-top-right-radius:16px; }
+
+
+@keyframes chat-bounce{
+  0%, 60%, 100% { transform: translateY(0); opacity: .8; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+</style>
+
+
+<!-- chat typing patch (safe submit handler; no cloning) -->
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function ensureCallApi(){
+    if (typeof window.callApi === 'function') return window.callApi;
+    return async function(endpoint, body){
+      const res = await fetch(`/api/${endpoint}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body || {})
+      });
+      if (!res.ok){ throw new Error(`[${endpoint}] HTTP ` + res.status); }
+      return res.json();
+    };
+  }
+  function addMsg(role, text){
+    const log = $('chatLog'); if (!log) return;
+    const roleKey = (role === 'user') ? 'user' : 'bot';
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + roleKey;
+    wrap.innerHTML = '<div class="role">' + (roleKey==='user'?'Ти':'Бот') + '</div><div class="text"></div>';
+    wrap.querySelector('.text').textContent = String(text || '');
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+    return wrap;
+  }
+  function showTyping(){
+    if ($('chatTyping')) return $('chatTyping');
+    const log = $('chatLog'); if (!log) return null;
+    const wrap = document.createElement('div');
+    wrap.id = 'chatTyping';
+    wrap.className = 'msg bot typing';
+    wrap.innerHTML = '<div class="role">Бот</div><div class="text" aria-live="polite"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+    return wrap;
+  }
+  function hideTyping(){
+    const t = $('chatTyping'); if (t && t.parentNode) t.parentNode.removeChild(t);
+  }
+  function wire(){
+    const formId = 'chatForm';
+    const form = $(formId);
+    if (!form) return;
+    const callApi = ensureCallApi();
+    // Capture-phase handler: overrides other submit listeners without altering existing code
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      const input = $('chatInput');
+      const log = $('chatLog');
+      if (!input || !log) return;
+      const msg = (input.value || '').trim();
+      if (!msg){ input.focus(); return; }
+      addMsg('user', msg);
+      input.value = '';
+      const t = showTyping();
+      try{
+        let data;
+        try { data = await callApi('chat', { message: msg }); }
+        catch { data = await callApi('ask',  { question: msg }); }
+        hideTyping();
+        addMsg('bot', data?.reply || data?.answer || data?.text || data?.message || 'Няма отговор.');
+      } catch(err){
+        hideTyping();
+        addMsg('bot', 'Грешка: ' + (err?.message || err));
+      }
+    }, true); // capture
+  }
+  if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', wire, { once:true }); }
+  else { wire(); }
+})();
+</script>
+<!-- === Chatbot greeting (non-destructive) === -->
+<script>
+(function(){
+  var GREET_TEXT = "Здравейте, аз съм вашият личен астролог. Може да ме питате всичко.";
+  function addGreeting(){
+    try{
+      var log = document.getElementById('chatLog');
+      if (!log || log.dataset.greeted === 'true') return;
+      var wrap = document.createElement('div');
+      wrap.className = 'msg bot';
+      var role = document.createElement('div');
+      role.className = 'role';
+      role.textContent = 'Бот';
+      var txt = document.createElement('div');
+      txt.className = 'text bot-greeting';
+      txt.textContent = GREET_TEXT;
+      wrap.appendChild(role); wrap.appendChild(txt);
+      log.appendChild(wrap);
+      log.dataset.greeted = 'true';
+      try { log.scrollTop = log.scrollHeight; } catch(_){}
+    }catch(_){}
+  }
+  // Wrap global toggleChat if present
+  (function wrapToggle(){
+    try{
+      var prev = window.toggleChat;
+      if (typeof prev === 'function' && !prev.__withGreeting){
+        function wrapped(open){
+          var r = prev.apply(this, arguments);
+          if (open) setTimeout(addGreeting, 0);
+          return r;
+        }
+        wrapped.__withGreeting = true;
+        window.toggleChat = wrapped;
+      }
+    }catch(_){}
+  })();
+  // Also observe the chat popup class changes and the FAB click as fallbacks
+  document.addEventListener('DOMContentLoaded', function(){
+    var fab = document.getElementById('chatFab');
+    var popup = document.getElementById('chatPopup');
+    if (fab) fab.addEventListener('click', function(){ setTimeout(addGreeting, 0); }, { passive:true });
+    if (popup && 'MutationObserver' in window){
+      var mo = new MutationObserver(function(){
+        if (popup.classList.contains('open')) setTimeout(addGreeting, 0);
+      });
+      mo.observe(popup, { attributes:true, attributeFilter:['class'] });
+    }
+    // Last resort: greet shortly after load if chat is already open
+    setTimeout(function(){
+      var popup = document.getElementById('chatPopup');
+      if (popup && popup.classList.contains('open')) addGreeting();
+    }, 800);
+  });
+})();
+</script>
+
+
+
+
+</body>
+
+<!-- === Chatbot greeting (non-destructive) === -->
+
+<script>
+(function(){
+  function toggleChat(open){
+    var popup = document.getElementById('chatPopup');
+    var fab   = document.getElementById('chatFab');
+    if (!popup) return false;
+
+    var isOpen   = popup.classList.contains('open');
+    var wantOpen = (typeof open === 'boolean') ? open : !isOpen;
+
+    popup.classList[wantOpen ? 'add' : 'remove']('open');
+
+    try{
+      if (wantOpen){
+        popup.removeAttribute('aria-hidden');
+        fab && fab.setAttribute('aria-label','Затвори чата');
+        var input = document.getElementById('chatInput');
+        if (input) { input.focus({ preventScroll:true }); }
+      } else {
+        popup.setAttribute('aria-hidden','true');
+        fab && fab.setAttribute('aria-label','Отвори чат');
+      }
+    }catch(_){}
+
+    return wantOpen;
+  }
+  window.toggleChat = toggleChat;
+
+  // Делегирани обработчици (capture), за да работи и ако елементите се местят
+  document.addEventListener('click', function(e){
+    var btn   = e.target && (e.target.closest ? e.target.closest('#chatFab')   : null);
+    var close = e.target && (e.target.closest ? e.target.closest('#chatClose') : null);
+    if (btn){   e.preventDefault(); toggleChat(); }
+    if (close){ e.preventDefault(); toggleChat(false); }
+  }, true);
+
+  // Escape затваря
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') toggleChat(false);
+  });
+})();
+</script>
+
+<script type="module" src="firebase-init.js"></script>
+<script type="module" src="astro-credits.js?v=1"></script>
+<script type="module" src="began.js?v=1756031913"></script>
+<script type="module" src="profile.js"></script>
+</html>

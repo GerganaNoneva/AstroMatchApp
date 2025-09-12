@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+
+<html lang="bg">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#9b8cff" name="theme-color"/>
+<link href="images/heartLogo.gif" rel="icon" type="image/gif"/>
+<title>Профил</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Libertinus+Sans:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="styles.css" rel="stylesheet"/>
+<link href="profile.css" rel="stylesheet"/>
+<link href="responsive-mobile.css?v=5" rel="stylesheet"/>
+<!-- за да изглежда като natal формата -->
+<link href="natal.css" rel="stylesheet"/>
+<link href="began.css?v=profile" rel="stylesheet"/>
+<!-- Плаващ чат бутон (1:1 като horary/began) -->
+<button aria-label="Отвори чат" class="chat-fab" id="chatFab">
+<img alt="AstroChat" src="/images/icons/mercury.png"/>
+</button>
+<!-- Прозорец на чата -->
+<div aria-label="Астрологичен чат" aria-modal="true" class="chat-popup" id="chatPopup" role="dialog">
+<div class="chat-head">
+<h3>AstroChat</h3>
+<button id="chatClose" title="Затвори">✕</button>
+</div>
+<div aria-live="polite" class="chat-log" id="chatLog"></div>
+<form class="chat-form" id="chatForm">
+<input class="chat-input" id="chatInput" placeholder="Луна в Рак в 5 дом…" type="text"/>
+<button class="chat-send">Изпрати</button>
+</form>
+</div>
+<style>
+    /* Плаващ бутон (кръгче) */
+
+    /* Прозорецът на чата */
+    .chat-popup {
+      position: fixed;
+      right: 20px;
+      bottom: 84px;
+      /* над бутона */
+      width: 360px;
+      max-width: calc(100vw - 32px);
+      height: 480px;
+      max-height: calc(100vh - 120px);
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+    }
+
+    .chat-popup.open {
+      display: flex;
+    }
+
+    .chat-head {
+      background: linear-gradient(135deg, #6c5ce7 0%, #9b8cff 100%);
+      color: #fff;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-head h3 {
+      font: 600 14px/1.2 system-ui, Segoe UI, Roboto, Arial;
+      margin: 0;
+      flex: 1;
+    }
+
+    .chat-head button {
+      border: 0;
+      background: rgba(255, 255, 255, .18);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .chat-log{
+      flex:1; padding:12px 12px 14px; overflow:auto;
+      background: linear-gradient(180deg,#f8f6ff 0%, #f3f0ff 100%);
+    }
+
+    .msg{ margin:8px 0; display:flex; gap:8px; align-items:flex-end; }
+
+    .msg .role{ font-size:10px; color:#888; margin-bottom:3px; }
+
+    .msg .text{
+      max-width:80%;
+      white-space:pre-wrap;
+      font: 13px/1.45 system-ui, Segoe UI, Roboto, Arial;
+      background:#fff;
+      border:1px solid #eee;
+      border-radius:14px;
+      padding:8px 10px;
+      box-shadow: 0 2px 10px rgba(17,12,46,.06);
+    }
+
+    .chat-form {
+      display: flex;
+      gap: 8px;
+      padding: 10px;
+      border-top: 1px solid #eee;
+      background: #fff;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font: 14px/1.2 system-ui, Segoe UI, Roboto, Arial;
+    }
+
+    .chat-send {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 0;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    @media (max-width: 480px) {
+      .chat-popup {
+        right: 12px;
+        bottom: 80px;
+        width: calc(100vw - 24px);
+        height: 60vh;
+      }
+    }
+
+    .chat-fab {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      z-index: 9999;
+      padding: 0;
+      background: linear-gradient(135deg, #ffb37a 0%, #ff5ca8 100%);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .25);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .chat-fab img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .chat-fab:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, .3);
+    }
+  
+    .msg.user{ justify-content:flex-end; }
+    .msg.user .text{
+      background: linear-gradient(135deg,#6c5ce7 0%, #9b8cff 100%);
+      color:#fff; border: none; box-shadow: 0 4px 16px rgba(108,92,231,.25);
+      border-bottom-right-radius: 6px; border-top-left-radius: 16px; border-top-right-radius: 16px; border-bottom-left-radius: 16px;
+    }
+    .msg.bot .text{
+      background:#fff; color:#1b1630; border:1px solid #ece7ff;
+      border-bottom-left-radius: 6px; border-top-right-radius: 16px;
+    }
+    .chat-head{ background: linear-gradient(135deg,#6c5ce7 0%, #9b8cff 100%); color:#fff; padding:12px 12px; display:flex; align-items:center; gap:10px; }
+    .chat-head h3{ font:600 13px/1.2 system-ui, Segoe UI, Roboto, Arial; margin:0; flex:1; letter-spacing:.2px; }
+    .chat-input{ font: 13px/1.35 system-ui, Segoe UI, Roboto, Arial; }
+    .chat-send{ font-size:13px; }
+    /* Messenger-like typing indicator */
+    .msg.typing .text{ display:inline-flex; align-items:center; }
+    .typing .dots{ display:inline-grid; grid-auto-flow:column; gap:4px; padding:4px 2px 2px; }
+    .typing .dots i{ width:6px; height:6px; border-radius:50%; background:#7f6df2; opacity:.6; animation: dotBounce 1.2s infinite; }
+    .typing .dots i:nth-child(2){ animation-delay:.15s; }
+    .typing .dots i:nth-child(3){ animation-delay:.3s; }
+    @keyframes dotBounce{ 0%,80%,100%{ transform: translateY(0); opacity:.5 } 40%{ transform: translateY(-4px); opacity:1 } }
+    
+  </style>
+</head>
+<body class="profile-page">
+
+  
+<!-- My Data modal (empty same-sized shell, same as began.html) -->
+<!-- My Data modal (same ids as expected by profile.js) -->
+<div aria-modal="true" class="modal hidden" id="myDataModal" role="dialog">
+<div class="modal-content" id="myDataContent"></div>
+</div>
+<section class="video-grid">
+<a class="video-item" href="natal.html">
+<video muted="" playsinline="" preload="auto" src="videos/natal2.mp4"></video>
+<p>НАТАЛНА</p>
+</a>
+<a class="video-item" href="synastry.html">
+<video muted="" playsinline="" preload="auto" src="videos/sinastry2.mp4"></video>
+<p>СИНАСТРИЯ</p>
+</a>
+<a class="video-item" href="prognostika.html">
+<video muted="" playsinline="" preload="auto" src="videos/prognostika2.mp4"></video>
+<p>ПРОГНОСТИКА</p>
+</a>
+<a class="video-item" href="horary.html">
+<video muted="" playsinline="" preload="auto" src="videos/horary2.mp4"></video>
+<p>ХОРАРНА</p>
+</a>
+</section>
+<!-- МОДАЛ 1: „Данни“ -->
+<!-- МОДАЛ 2: „Добави профил“ -->
+<div class="modal hidden" id="addProfileModal">
+<div class="modal-content">
+<button aria-label="Затвори" class="modal-close">×</button>
+<h2 class="modal-title">Въведи рожденни данни:</h2>
+<form class="birth-form" id="addProfileForm">
+<div class="form-group">
+<label for="addName">Име</label>
+<input id="addName" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="addDate">Дата на раждане</label>
+<input id="addDate" required="" type="date"/>
+</div>
+<div class="form-group">
+<label for="addTime">Час на раждане</label>
+<input id="addTime" required="" type="time"/>
+</div>
+<div class="form-group">
+<label for="addCity">Град (латиница)</label>
+<div class="row-inline">
+<input id="addCity" placeholder="e.g. Sofia" type="text"/>
+<button class="cta small" id="addSearchCityBtn" type="button">ТЪРСИ</button>
+</div>
+<select class="hidden" id="addCityResults" size="5"></select>
+</div>
+<div class="form-group row-inline">
+<input id="addDST" type="checkbox"/>
+<label for="addDST">Лятно часово време</label>
+</div>
+<button class="cta" id="addSaveBtn" type="submit">ЗАПАЗИ</button>
+</form>
+</div>
+</div>
+<!-- МОДАЛ 3: „Управление на профили“ -->
+<div class="modal hidden" id="manageModal">
+<div class="modal-content">
+<button aria-label="Затвори" class="modal-close">×</button>
+<h2 class="modal-title">Избери профил:</h2>
+<div class="form-group">
+<!-- махнат е label-ът -->
+<select class="select-large" id="manageSelect"></select>
+</div>
+<div class="separator-text">или</div>
+<div class="separator-text">----- създай нов -----</div>
+<form class="birth-form" id="manageForm">
+<div class="form-group">
+<label for="manageName">Име</label>
+<input id="manageName" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="manageDate">Дата на раждане</label>
+<input id="manageDate" required="" type="date"/>
+</div>
+<div class="time-dst-group form-group">
+<label for="manageTime">Час на раждане</label>
+<input id="manageTime" name="timeInput" type="time"/>
+<label for="dstCheckbox">
+<input id="dstCheckbox" name="dstCheckbox" type="checkbox"/>
+            Лятно часово време
+          </label>
+</div>
+<div class="form-group">
+<label for="manageCity">Град (латиница)</label>
+<div class="row-inline">
+<input id="manageCity" placeholder="e.g. Sofia" type="text"/>
+<button class="cta small" id="manageSearchCityBtn" type="button">ТЪРСИ</button>
+</div>
+<select class="hidden" id="manageCityResults" size="5"></select>
+</div>
+<button class="cta" id="manageSaveBtn" type="submit">ЗАПАЗИ</button>
+</form>
+<div aria-modal="true" class="modal hidden" id="profilesModal" role="dialog">
+<div class="modal-content" id="profilesContent"></div>
+</div>
+<div class="loader-active" id="videoLoader">
+<video autoplay="" loop="" muted="" playsinline="" src="videos/loading.mp4"></video>
+</div>
+<!-- Прозорец на чата -->
+<!-- Плаващ чат бутон (добавен) -->
+<button aria-label="Отвори чат" class="chat-fab" id="chatFab">
+<img alt="AstroChat" onerror="this.onerror=null; this.src='/images/icons/mercury.png';" src="images/icons/mercury.png"/>
+</button>
+<div aria-label="Астрологичен чат" aria-modal="true" class="chat-popup" id="chatPopup" role="dialog">
+<div class="chat-head">
+<h3>AstroChat</h3>
+<button id="chatClose" title="Затвори">✕</button>
+</div>
+<div aria-live="polite" class="chat-log" id="chatLog"></div>
+<form class="chat-form" id="chatForm">
+<input class="chat-input" id="chatInput" placeholder="Луна в Рак в 5 дом…" type="text"/>
+<button class="chat-send">Изпрати</button>
+</form>
+</div>
+<script>
+    const API = '/chat'; // смени с пълния URL ако бекендът е на друг домейн
+
+    const fab = document.getElementById('chatFab');
+    const popup = document.getElementById('chatPopup');
+    const closeBtn = document.getElementById('chatClose');
+    const logEl = document.getElementById('chatLog');
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('chatInput');
+
+    function toggleChat(open) {
+      popup.classList[open ? 'add' : 'remove']('open');
+      if (open) setTimeout(() => input ?.focus(), 0);
+    }
+    fab.addEventListener('click', () => toggleChat(true));
+    closeBtn.addEventListener('click', () => toggleChat(false));
+
+    function addMsg(role, text){
+      const roleKey = (role === 'Ти' || role === 'user') ? 'user' : (role === 'Бот' || role === 'bot') ? 'bot' : 'bot';
+      const wrap = document.createElement('div');
+      wrap.className = `msg ${roleKey}`;
+      wrap.innerHTML = `<div class="role">${roleKey==='user'?'Ти':'Бот'}</div><div class="text">${text}</div>`;
+      logEl.appendChild(wrap);
+      // limit messages to avoid DOM/RAM growth
+      const MAX = 50;
+      while (logEl.children.length > MAX) logEl.removeChild(logEl.firstChild);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function showTyping(){
+      if (document.getElementById('typingMsg')) return;
+      const wrap = document.createElement('div');
+      wrap.id = 'typingMsg';
+      wrap.className = 'msg bot typing';
+      wrap.innerHTML = `<div class="role">Бот</div><div class="text"><span class="dots"><i></i><i></i><i></i></span></div>`;
+      logEl.appendChild(wrap);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+    function hideTyping(){
+      const t = document.getElementById('typingMsg');
+      if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = (input.value || '').trim();
+      console.log(msg)
+      if (!msg) return;
+      addMsg('user', msg);
+      showTyping();
+      input.value = '';
+      input.focus();
+      try {
+        const r = await fetch(API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: msg
+          })
+        });
+        const j = await r.json();
+        hideTyping();
+        if (j?.reply) addMsg('bot', j.reply);
+        else addMsg('bot', 'Грешка: ' + (j.error || 'неизвестна'));
+      } catch (err) {
+        hideTyping();
+        addMsg('bot', 'Мрежова грешка.');
+      }
+    });
+
+    // По желание: отваряй чата при първа грешка с формата или при mobile tap и т.н.
+  </script>
+<script>
+    // Ленива инициализация на видеата в .home-video-grid
+    (function () {
+      const vids = document.querySelectorAll('.home-video-grid video');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          const v = e.target;
+          if (e.isIntersecting && !v.src && v.dataset.src) {
+            v.src = v.dataset.src; // сетваме src чак когато влезе в изглед
+            v.load();
+          }
+        });
+      }, {
+        rootMargin: '200px'
+      });
+
+      vids.forEach(v => {
+        // ако имаш postер кадри, може да сетнеш v.poster = '...';
+        io.observe(v);
+        // по-нататък играем/спираме само при hover/фокус, за да пестим CPU/GPU
+        ['pointerenter', 'focus'].forEach(ev => v.addEventListener(ev, () => v.play().catch(() => {})));
+        ['pointerleave', 'blur'].forEach(ev => v.addEventListener(ev, () => v.pause()));
+      });
+    })();
+  </script>
+<script src="./firebase-init.js" type="module"></script><script src="./began.js" type="module"></script><script src="./profile.js" type="module"></script>
+<script>
+// Ensure the avatar opens the same menu as began.html (resolve double listeners)
+(function(){
+  function ready(fn){
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, { once:true });
+    else fn();
+  }
+  ready(function(){
+    var avatar = document.getElementById('profilePic');
+    if (!avatar) return;
+    // Add a final-phase click that forces the began menu to open
+    avatar.addEventListener('click', function(){
+      // run after other listeners on this event
+      setTimeout(function(){
+        try {
+          if (typeof ensureProfileMenu === 'function') ensureProfileMenu();
+          if (typeof allowMenu === 'undefined' || allowMenu) {
+            if (typeof showProfileMenu === 'function') showProfileMenu();
+            var m = document.getElementById('profileMenu');
+            if (m) { m.classList.remove('hidden'); m.classList.add('open'); }
+          }
+        } catch(e){ /* no-op */ }
+      }, 0);
+    });
+  });
+})();
+</script>
+
+<!-- chat-visibility patch: keep chat above overlays (no visual changes) -->
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function ensureVisible(){
+    var fab = $('chatFab'), popup = $('chatPopup'), loader = document.getElementById('videoLoader');
+    if (!fab && !popup) return;
+    var zi = 10001;
+    if (loader){
+      var z = Number(getComputedStyle(loader).zIndex || 0) || 9999;
+      zi = z + 1;
+    }
+    if (fab)  fab.style.zIndex  = String(zi);
+    if (popup) popup.style.zIndex = String(zi);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureVisible, { once:true });
+  else ensureVisible();
+})();
+</script>
+<!-- chat icon resolver (ensures icon is visible without changing styles when available) -->
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function resolveIcon(){
+    var btn = $('chatFab'); if (!btn) return;
+    var img = btn.querySelector('img'); if (!img) return;
+    var tried = new Set();
+    var candidates = [
+      img.getAttribute('src'),
+      'images/icons/mercury.png',
+      './images/icons/mercury.png',
+      '../images/icons/mercury.png',
+      '/images/icons/mercury.png'
+    ].filter(Boolean);
+    function tryNext(i){
+      if (i >= candidates.length){
+        // final fallback: minimal inline SVG circle so the button is visible
+        var svg = 'data:image/svg+xml;utf8,' +
+          encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56"><defs><radialGradient id="g" cx="30%" cy="28%" r="75%"><stop offset="0%" stop-color="#ffd27a"/><stop offset="35%" stop-color="#ff9b43"/><stop offset="82%" stop-color="#ff4f7b"/></radialGradient></defs><circle cx="28" cy="28" r="28" fill="url(#g)"/></svg>');
+        img.src = svg;
+        return;
+      }
+      var src = candidates[i];
+      if (tried.has(src)) return tryNext(i+1);
+      tried.add(src);
+      var probe = new Image();
+      probe.onload = function(){ img.src = src; };
+      probe.onerror = function(){ tryNext(i+1); };
+      probe.src = src;
+    }
+    // if current src fails at runtime, try alternates
+    img.addEventListener('error', function onerr(){
+      img.removeEventListener('error', onerr);
+      tryNext(0);
+    });
+    // Also proactively test once DOM is ready
+    tryNext(0);
+  }
+  if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', resolveIcon, { once:true }); }
+  else resolveIcon();
+})();
+</script>
+</div></div><!-- === Chatbot greeting (non-destructive) === -->
+<script>
+(function(){
+  var GREET_TEXT = "Здравейте, аз съм вашият личен астролог. Може да ме питате всичко.";
+  function addGreeting(){
+    try{
+      var log = document.getElementById('chatLog');
+      if (!log || log.dataset.greeted === 'true') return;
+      var wrap = document.createElement('div');
+      wrap.className = 'msg bot';
+      var role = document.createElement('div');
+      role.className = 'role';
+      role.textContent = 'Бот';
+      var txt = document.createElement('div');
+      txt.className = 'text bot-greeting';
+      txt.textContent = GREET_TEXT;
+      wrap.appendChild(role); wrap.appendChild(txt);
+      log.appendChild(wrap);
+      log.dataset.greeted = 'true';
+      try { log.scrollTop = log.scrollHeight; } catch(_){}
+    }catch(_){}
+  }
+  // Wrap global toggleChat if present
+  (function wrapToggle(){
+    try{
+      var prev = window.toggleChat;
+      if (typeof prev === 'function' && !prev.__withGreeting){
+        function wrapped(open){
+          var r = prev.apply(this, arguments);
+          if (open) setTimeout(addGreeting, 0);
+          return r;
+        }
+        wrapped.__withGreeting = true;
+        window.toggleChat = wrapped;
+      }
+    }catch(_){}
+  })();
+  // Also observe the chat popup class changes and the FAB click as fallbacks
+  document.addEventListener('DOMContentLoaded', function(){
+    var fab = document.getElementById('chatFab');
+    var popup = document.getElementById('chatPopup');
+    if (fab) fab.addEventListener('click', function(){ setTimeout(addGreeting, 0); }, { passive:true });
+    if (popup && 'MutationObserver' in window){
+      var mo = new MutationObserver(function(){
+        if (popup.classList.contains('open')) setTimeout(addGreeting, 0);
+      });
+      mo.observe(popup, { attributes:true, attributeFilter:['class'] });
+    }
+    // Last resort: greet shortly after load if chat is already open
+    setTimeout(function(){
+      var popup = document.getElementById('chatPopup');
+      if (popup && popup.classList.contains('open')) addGreeting();
+    }, 800);
+  });
+})();
+</script>
+
+<!-- === PATCH: Chat toggle & dedupe (non-destructive) === -->
+<script>
+(function(){
+  function pickLast(sel){
+    var list = Array.prototype.slice.call(document.querySelectorAll(sel));
+    return list.length ? list[list.length - 1] : document.querySelector(sel);
+  }
+  function toggle(open){
+    var popup = pickLast('#chatPopup');
+    if (!popup) return;
+    if (typeof open === 'boolean') popup.classList.toggle('open', open);
+    else popup.classList.toggle('open');
+    if (popup.classList.contains('open')) {
+      var input = popup.querySelector('#chatInput');
+      if (input) setTimeout(function(){ try{ input.focus(); }catch(_){} }, 0);
+    }
+  }
+  function onFab(e){ try{ e.preventDefault(); }catch(_){}
+    toggle();
+  }
+  function onClose(e){ try{ e.preventDefault(); }catch(_){}
+    toggle(false);
+  }
+  function onKey(e){ if ((e && e.key) === 'Escape') toggle(false); }
+  function onOutside(e){
+    var popup = pickLast('#chatPopup');
+    var fab   = pickLast('#chatFab');
+    if (!popup || !popup.classList.contains('open')) return;
+    var t = e.target;
+    if (!popup.contains(t) && (!fab || !fab.contains(t))) toggle(false);
+  }
+  function wire(){
+    var fab   = pickLast('#chatFab');
+    var close = pickLast('#chatClose');
+    if (fab)   fab.addEventListener('click', onFab);
+    if (close) close.addEventListener('click', onClose);
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('click', onOutside);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wire, { once: true });
+  } else {
+    wire();
+  }
+})();
+</script>
+</body>
+</html>

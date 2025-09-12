@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#9b8cff" />
+  <link rel="icon" type="image/gif" href="images/heartLogo.gif" />
+  <title>AstroMatch</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Firebase init MUST be first so other modules can import { auth } -->
+  <script type="module" src="firebase-init.js"></script>
+  <!-- App logic (handles both popup and redirect flows) -->
+  <script type="module" src="script.js"></script>
+</head>
+<body>
+  <video autoplay muted loop id="bg-video">
+    <source src="images/spining.mp4" type="video/mp4" />
+  </video>
+  <div class="overlay"></div>
+
+  <!-- Входен бутон -->
+  <div class="login">
+    <button id="loginBtn" class="cta">ВПИШИ СЕ</button>
+  </div>
+
+  <!-- Hero + регистрация -->
+  <section class="hero">
+    <h1>ДОБРЕ ДОШЛИ В ASTROMATCH</h1>
+    <button id="openSignup" class="cta">СЪЗДАЙ ПРОФИЛ</button>
+  </section>
+
+  <!-- Модал за социален вход -->
+  <div id="signupModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Затвори">&times;</button>
+      <img src="images/heartLogo.gif" alt="AstroMatch Icon" class="modal-logo" />
+      <h2 id="signupTitle" class="modal-title">Вход</h2>
+      <div class="social-buttons">
+        <button id="googleBtn" class="social-btn google">Продължи с Google</button>
+        <button id="facebookBtn" class="social-btn facebook">Продължи с Facebook</button>
+      </div>
+      <p class="modal-terms">
+        С натискане приемаш <a href="#">Условията</a> и <a href="#">Политиката за поверителност</a>.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

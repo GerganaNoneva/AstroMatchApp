@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+
+<html lang="bg">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#9b8cff" name="theme-color"/>
+<link href="images/heartLogo.gif" rel="icon" type="image/gif"/>
+<title>Натална астрология</title>
+<link href="styles.css" rel="stylesheet"/>
+<link href="horary.css" rel="stylesheet"/>
+<link href="natal.css" rel="stylesheet"/>
+<style>
+    /* ---- Видима модална форма + компактни размери (както поискано) ---- */
+    #natalModal{ font-size: 14px; }
+    #natalModal .modal-content--natal{
+      height: 95vh;
+      max-height: 95vh;
+      overflow: hidden; /* без скрол вътре */
+      background: linear-gradient(135deg, #ffd3f6 0%, #d6ccff 100%); /* розово-лилав фон */
+      border-radius: 24px; /* заоблени ръбове */
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      padding: 16px 18px;
+    }
+    #natalModal .modal-title--big{
+      margin-top: 6px; margin-bottom: 8px; font-size: 18px; text-transform: uppercase; letter-spacing: .4px;
+    }
+    #natalModal .chooser{ display:flex; flex-direction:column; gap:4px; align-items:stretch; margin-bottom:6px; }
+    #natalModal .profile-select-big{ width:100%; min-height:36px; padding:6px 10px; border-radius:10px; font-size:14px; }
+    #natalModal .chooser-line{ display:block; text-align:center; line-height:1.1; font-weight:600; font-size:12px; }
+    #natalModal .birth-form{ display:grid; grid-template-rows:auto auto; row-gap:8px; height:calc(95vh - 120px); max-height:calc(95vh - 120px); }
+    #natalModal .form-grid{ display:grid; grid-template-columns:110px 1fr; gap:8px 12px; align-items:center; font-size:14px; }
+    #natalModal .lbl{ font-weight:600; text-transform:lowercase; font-size:13px; }
+    #natalModal .inp{ min-height:36px; padding:6px 10px; font-size:14px; border-radius:10px; }
+    #natalModal .row-inline{ display:flex; gap:8px; align-items:center; }
+    #natalModal .row-inline .chk{ font-size:12px; }
+    #natalModal .city-row{ display:flex; gap:8px; align-items:center; }
+    #natalModal .city-dropdown-wrap{ margin-top:2px; }
+    #natalModal .city-dropdown{ width:100%; min-height:36px; padding:6px 10px; border-radius:10px; font-size:14px; }
+    #natalModal .btns-row{ display:flex; gap:8px; align-items:center; justify-content:flex-end; }
+    #natalModal .cta{ font-size:13px; padding:8px 12px; border-radius:12px; }
+    #natalModal .cta.small{ padding:6px 10px; font-size:12px; }
+    #natalModal .cta:disabled{ opacity:.55; cursor:not-allowed; filter:saturate(.5); }
+  </style>
+<style>
+    .loading-overlay{position:fixed;inset:0;display:grid;place-items:center;z-index:2;background:transparent}
+    .loading-box{display:flex;flex-direction:column;align-items:center;gap:32px;padding:48px 56px;border-radius:16px;backdrop-filter:blur(4px)}
+    .spinner{width:144px;height:144px;border:12px solid rgba(255,255,255,.35);border-top-color:rgba(255,255,255,.9);border-radius:50%;animation:spin 1s linear infinite}
+    .dots{font:600 28px/1.2 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.35);animation:pulse 1.2s ease-in-out infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes pulse{0%,100%{opacity:.7}50%{opacity:1}}
+    .loading-overlay[hidden]{display:none!important}
+    .result.hidden{display:none!important}
+    .result-title{color:#fff;margin:16px 0 8px}
+    .result-wrap{display:flow-root;padding:12px}
+    .result-chart{float:left;width:clamp(180px,33%,340px);max-width:100%;height:auto;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);margin:0 1rem 1rem 0}
+    .result-text{white-space:pre-wrap;line-height:1.5}
+    @media (max-width: 800px){ .result-wrap{display:flow-root;padding:12px} }
+  
+@media (max-width: 640px){
+  @media (max-width: 800px){ .result-chart{ float:none; display:block; width:min(100%,360px); margin:0 auto 1rem; } }
+}
+</style>
+<style>
+/* === Added: tightly stacked generating lines === */
+.dots-wrap{ display:flex; flex-direction:column; align-items:center; gap:0; }
+.dots-wrap .dots{ line-height:1; margin:0; }
+</style>
+
+<style>
+/* AC (natal): make the credit digit 2x and white on the SAVE button */
+#saveChoose .credit-chip .amt {
+  font-size: 32px !important;
+  line-height: 1;
+  color: #fff !important;
+}
+/* also slightly enlarge the coin to match */
+#saveChoose .credit-chip img {
+  width: 36px !important;
+  height: 36px !important;
+}
+</style>
+
+<style>
+    /* ===== Синастрия: двоен модала ===== */
+    /* Контейнерът на модала е 90vh и центриран вертикално */
+    #synastryModal { font-size: 14px; position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; height: 90vh; padding-top:0; }
+    #synastryModal .modal-content {
+      width: min(96vw, 1200px);
+      max-height: 100%;
+      overflow: hidden;
+      margin: 0 auto;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #ffd3f6 0%, #d6ccff 100%);
+      padding: 14px 16px;
+    }
+    .synastry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .syn-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      /* Розово-лилав фон на формите */
+      background: linear-gradient(180deg, #ffe1f3 0%, #eadbff 100%);
+      border-radius: 16px;
+      padding: 12px;
+      height: 90vh;                 /* фиксирана височина на формите */
+      overflow: hidden;             /* скрол само във вътрешния скролер */
+      
+    }
+    .syn-title {
+      margin: 2px 0 8px;
+      font-weight: 900;
+      font-size: 16px;
+      letter-spacing: .06em;
+      color: #4c1d95;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .syn-scroller {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;               /* вътрешен скрол */
+      padding-right: 4px;
+    }
+
+    .syn-card .chooser{ display:flex; flex-direction:column; gap:2px; align-items:stretch; margin-bottom:4px; }
+    .syn-card .profile-select-big{ width:100%; min-height:36px; padding:6px 10px; border-radius:10px; font-size:14px; }
+    .syn-card .chooser-line{ display:block; text-align:center; line-height:1.1; font-weight:600; font-size:12px; color:#4c1d95; }
+    .syn-card .form-grid{ display:grid; grid-template-columns:110px 1fr; column-gap:12px; row-gap:0; }
+    .syn-card .lbl{ font-weight:600; font-size:13px; text-transform:lowercase; margin:0; line-height:1; }
+    .syn-card .inp{ min-height:36px; padding:6px 10px; font-size:14px; border-radius:10px; margin:0; line-height:1; }
+    .syn-card .row-inline{ display:flex; gap:8px; align-items:center; }
+    .syn-card .city-dropdown{ min-height:36px; padding:6px 10px; border-radius:10px; font-size:14px; }
+    .syn-card .btns-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .syn-card .cta{ font-size:13px; padding:8px 12px; }
+    .syn-card .cta:disabled{ opacity:.6; filter:saturate(.5); cursor:not-allowed; }
+
+    /* ПРОМЕНИ — позициониран отдолу по средата и над овърлея */
+    .edit-bottom {
+      position: absolute;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      z-index: 20; /* над овърлея */
+      
+    }
+    .cta.success{
+      background: #10b981; /* зелено */
+      color: #fff;
+      border: none;
+    }
+    .cta.success:hover{ filter: brightness(.95); }
+
+    /* Овърлей за избрано */
+    .chosen-veil{
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,.55);
+      backdrop-filter: blur(1px) saturate(1.1);
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .chosen-veil img{ width: 140px; height: auto; display: block; }
+    .chosen-veil.hidden{ display: none; }
+
+    /* Респонсив */
+    @media (max-width: 980px){
+      .synastry-grid{ grid-template-columns: 1fr; }
+      .syn-card{ height: auto; max-height: none; }
+    }
+
+    /* Фон-видео */
+    #bg-video{ position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+
+    /* Футър с бутона в най-долния край на екрана */
+    .analyze-footer {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      display: flex; justify-content: center;
+      z-index: 50;
+      pointer-events: none; /* само бутонът да приема кликове */
+     padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+
+    .analyze-footer .cta {
+      pointer-events: auto;
+    }
+    .cta.mega:disabled{ opacity:.45; filter: grayscale(100%); cursor:not-allowed;  }
+  
+    /* === Ask GPT-5 mini card === */
+    .askgpt-card{
+      position: fixed;
+      right: 12px;
+      bottom: 74px; /* sit above bottom footer */
+      width: min(92vw, 360px);
+      background: #fff;
+      border-radius: 14px;
+      
+      padding: 12px 14px;
+      z-index: 60;
+    }
+    .askgpt-card h3{ margin: 0 0 6px; font-size: 15px; color:#4c1d95; }
+    .askgpt-card .muted{ font-size:12px; opacity:.8; margin:0 0 8px; }
+    .askgpt-card .row{ display:flex; gap:8px; align-items:center; }
+    .askgpt-card .status{ font-size:12px; opacity:.8; }
+    .askgpt-out{
+      margin-top:8px;
+      padding:8px;
+      background: linear-gradient(180deg,#ffe1f3 0%, #eadbff 100%);
+      border-radius:10px;
+      min-height: 20px;
+      font-size:14px;
+      color:#1f2937;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 2;
+      background: transparent;
+    }
+    .loading-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      padding: 48px 56px;
+      border-radius: 16px;
+      backdrop-filter: blur(4px);
+    }
+    .spinner {
+      width: 144px;
+      height: 144px;
+      border: 12px solid rgba(255,255,255,0.35);
+      border-top-color: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .dots {
+      font: 600 28px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100% { opacity: .7 } 50% { opacity: 1 } }
+      .loading-overlay[hidden]{ display: none !important; }
+  
+
+    /* === Резултат: 2 карти отгоре една до друга, текстът отдолу в поле === */
+.result-wrap{
+  display:grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:16px; align-items:start;
+}
+.result-chart{
+  width:100%; max-width:520px; aspect-ratio: 1/1; object-fit:contain;
+  border-radius:14px; background:#fff; 
+}
+.result-text{
+  grid-column: 1 / -1; /* текстът да заема ширината под двете карти */
+  background: rgba(40, 9, 57, 0.4);
+  padding:16px; border-radius:16px; color:#1f2937; white-space:pre-wrap;
+}
+
+.result-wrap{
+  width:min(92vw, 1100px);
+  position: relative;
+  background: rgba(40, 9, 57, 0.4);
+  color:#fff;
+  border-radius: 18px;
+  box-shadow:0 18px 46px rgba(0,0,0,.35);
+  padding:1rem 1.25rem 1.25rem 1.25rem;
+}
+
+/* Chart floats top-left so text wraps to the right, then flows under it */
+.result-chart{
+  float: left;
+  width: min(36vw, 320px);
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.35);
+  margin: 0 1.1rem .9rem 0;   /* space to the right and below */
+}
+
+/* Mobile: картите една под друга */
+@media (max-width: 860px){
+  .result-wrap{ grid-template-columns: 1fr; }
+}
+
+
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 2;
+      background: transparent;
+    }
+    .loading-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      padding: 48px 56px;
+      border-radius: 16px;
+      backdrop-filter: blur(4px);
+    }
+    .spinner {
+      width: 144px;
+      height: 144px;
+      border: 12px solid rgba(255,255,255,0.35);
+      border-top-color: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .dots {
+      font: 600 28px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100% { opacity: .7 } 50% { opacity: 1 } }
+      .loading-overlay[hidden]{ display: none !important; }
+  
+
+    /* === Result text area — dark purple like horary === */
+    .result-title{
+      margin: 0 0 12px;
+      font-weight: 900;
+      font-size: clamp(18px, 3.2vw, 26px);
+      letter-spacing: .02em;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,.35);
+    }
+    .result {
+      padding: 16px;
+    }
+    .result-wrap{
+  width:min(92vw, 1100px);
+  position: relative;
+  background: rgba(40, 9, 57, 0.4);
+  color:#fff;
+  border-radius: 18px;
+  
+  padding:1rem 1.25rem 1.25rem 1.25rem;
+    }
+    .result-text{
+      grid-column: 1 / -1;
+      background: rgba(40, 9, 57, 0.4);
+      color: #fff;
+      padding: 18px;
+      border-radius: 16px;
+      white-space: pre-wrap;
+      
+    }
+    @media (max-width: 860px){
+      .result-wrap{ grid-template-columns: 1fr; }
+    }
+
+    .result.hidden{ display:none; }
+.result{ width:100%; display:flex; flex-direction:column; align-items:center; gap:1.2rem; }
+.result-title{
+  color:#fff; font-weight:900; text-align:center;
+  font-size: clamp(1.6rem, 5.2vw, 3.4rem);
+  white-space:pre-wrap;
+  text-shadow:0 6px 18px rgba(0,0,0,.35);
+}
+.result-wrap{
+  width:min(92vw, 1100px);
+  position: relative;
+  background: rgba(40, 9, 57, 0.4);
+  color:#fff;
+  border-radius: 18px;
+  box-shadow:0 18px 46px rgba(0,0,0,.35);
+  padding:1rem 1.25rem 1.25rem 1.25rem;
+}
+
+/* Chart floats top-left so text wraps to the right, then flows under it */
+.result-chart{
+  float: left;
+  width: min(36vw, 320px);
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.35);
+  margin: 0 1.1rem .9rem 0;   /* space to the right and below */
+}
+
+/* Text should start right of the chart, then continue full width under it */
+.result-text{
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* Contain the float */
+.result-wrap::after{
+  content: "";
+  display: table;
+  clear: both;
+}
+
+@media (max-width: 860px){
+  .result-chart{
+    float: none;
+    display: block;
+    margin: 0 auto 1rem;
+    width: min(78vw, 440px);
+  }
+}
+</style>
+
+<style>
+/* === Added: tightly stacked generating lines === */
+.dots-wrap{ display:flex; flex-direction:column; align-items:center; gap:0; }
+.dots-wrap .dots{ line-height:1; margin:0; }
+</style>
+
+<style>/* AC: hide badge on saveChoose p1 */
+#saveChoose-p1 .ac-badge { display: none !important; }
+</style>
+
+<style>/* AC: bigger icon on analyzeBtn */
+#analyzeBtn .ac-badge img { width: 36px !important; height: 36px !important; }
+</style>
+
+<style>/* AC: analyze footer flush bottom */
+.analyze-footer { padding-bottom: env(safe-area-inset-bottom) !important; }
+@supports not (padding-bottom: env(safe-area-inset-bottom)) {
+  .analyze-footer { padding-bottom: 0 !important; }
+}
+.analyze-footer .cta { margin-bottom: 0 !important; }
+</style>
+
+<style>/* AC: chat above analyze footer */
+/* Дръж чата над футъра и го повдигни малко, за да не се застъпват */
+.analyze-footer{ z-index: 99990 !important; }
+#chatPopup{ z-index: 100005 !important; }
+#chatFab{ z-index: 100006 !important; }
+@media (max-width: 1024px){
+  #chatFab{ bottom: calc(env(safe-area-inset-bottom) + 76px) !important; }
+  .chat-popup{ bottom: calc(env(safe-area-inset-bottom) + 96px) !important; }
+}
+</style>
+
+<style>/* CHAT: ensure above footer & offset */
+.analyze-footer{ z-index: 99990 !important; pointer-events: none; }
+.analyze-footer .cta{ pointer-events: auto; }
+#chatPopup{ z-index: 100010 !important; }
+#chatFab{ z-index: 100011 !important; pointer-events: auto; }
+/* Lift chat controls above glued footer */
+@media (max-width: 1024px){
+  #chatFab{ bottom: calc(env(safe-area-inset-bottom) + 88px) !important; }
+  .chat-popup{ bottom: calc(env(safe-area-inset-bottom) + 108px) !important; }
+}
+</style>
+
+<style>/* CHAT: pinned & top-most */
+#chatFab, #chatPopup{ position: fixed; }
+#chatFab{ z-index: 2147483000 !important; pointer-events: auto !important; }
+#chatPopup{ z-index: 2147482999 !important; }
+</style>
+
+<style>
+/* === Astro Credits: cost pill on analyze button === */
+.credit-pill{
+  display:inline-flex; align-items:center; gap:6px;
+  margin-left:10px; padding:4px 8px;
+  border-radius:999px; background:transparent;
+  
+  font-weight:800; color:#4c1d95;
+}
+.credit-pill .amt{ font-size:16px; line-height:1; }
+.credit-pill img{ width: 40px; height: 40px; display:inline-block; }
+
+/* === Astro Credits: pretty confirm modal === */
+.cc-scrim{
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(22, 0, 37, .45);
+  backdrop-filter:saturate(1.2) blur(2px);
+  z-index:2147482000;
+}
+.cc-scrim[hidden]{ display:none !important; }
+.cc-modal{
+  width:min(92vw, 520px);
+  border-radius:18px;
+  padding:18px 18px 14px;
+  background: linear-gradient(135deg, #ffe1f3 0%, #eadbff 100%);
+  
+  color:#1f2937;
+}
+.cc-title{
+  margin:0 0 10px; font-weight:900; letter-spacing:.02em; color:#4c1d95;
+  font-size:clamp(18px, 3vw, 22px); text-align:center;
+}
+.cc-body{ background:#fff; border-radius:14px; padding:12px 14px;  }
+.cc-line{ margin:8px 0; font-size:15px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.cc-line .num{ font-weight:900; font-size:16px; color:#111827; display:inline-flex; align-items:center; gap:6px; }
+.cc-line .ico, .cc-ico{ width:18px; height:18px; vertical-align:middle; }
+.cc-line.warn{ color:#7c3aed; font-weight:700; }
+.cc-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+.cc-actions .cta{ min-height:36px; padding:8px 12px; }
+.cc-note{ font-size:12px; opacity:.7; margin-top:6px; text-align:center; }
+
+/* Insufficient state */
+.cc-insufficient .cc-body{ background:linear-gradient(180deg,#fff1f2 0%, #ffe4e6 100%); }
+.cc-insufficient .cc-title{ color:#b91c1c; }
+</style>
+
+<style>
+/* AC (natal): enlarge button text and center it */
+#saveChoose {
+  font-size: 0.8em !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+</style>
+
+
+<style>
+/* AC (natal): 1.5x bigger and centered SAVE button label */
+#saveChoose {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center;
+}
+#saveChoose .label, 
+#saveChoose .btn-text, 
+#saveChoose span {
+  font-size: 1.5em !important;
+  line-height: 1.1 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+</style>
+
+
+<style>/* RESULT TOP FLUSH */
+body { margin-top: 0 !important; }
+.result { margin-top: 0 !important; }
+</style>
+
+<style>
+  /* FINAL OVERRIDE: natal result = horary layout */
+  #resultStage .result-wrap { display: flow-root !important; }
+  #resultStage .result-chart {
+    float: left !important;
+    width: clamp(180px, 33%, 340px) !important;
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    margin: 0 1rem 1rem 0 !important;
+  }
+  #resultStage .result-text { white-space: pre-wrap; line-height: 1.5; }
+  @media (max-width: 800px){
+    #resultStage .result-chart{
+      float: none !important;
+      display: block;
+      width: min(100%, 360px) !important;
+      margin: 0 auto 1rem !important;
+    }
+  }
+</style>
+
+</head>
+
+<body data-balance-endpoint="credits/balance" data-charge-endpoint="credits/charge" data-credits-doc="users/{uid}" data-credits-field="credits">
+<!-- фон-видео, което се върти безкрайно -->
+<video autoplay="" id="bg-video" loop="" muted="" playsinline="">
+<source src="videos/natal2.mp4" type="video/mp4"/>
+    Вашият браузър не поддържа HTML5 видео.
+  </video>
+<!-- МОДАЛ: Избери профил / Създай нов – ВЕЧЕ ВИДИМ (без class="hidden") -->
+<div aria-modal="true" class="modal" id="natalModal" role="dialog">
+<div class="modal-content modal-content--natal" role="document">
+<button aria-label="Затвори" class="modal-close">×</button>
+<h2 class="modal-title modal-title--big">Избери профил</h2>
+<div class="chooser">
+<select class="profile-select-big" id="profilesSelect">
+<option disabled="" selected="">зареждам…</option>
+</select>
+<div class="chooser-line or">или</div>
+<div class="chooser-line create">--- създай нов ---</div>
+</div>
+<div class="birth-form">
+<div class="form-grid">
+<div class="lbl">име</div>
+<input class="inp" id="nm" placeholder="Име" type="text"/>
+<div class="lbl">дата</div>
+<input class="inp" id="dt" type="date"/>
+<div class="lbl">час</div>
+<div class="row-inline">
+<input class="inp" id="tm" step="60" type="time"/>
+<label class="chk"><input id="dst" type="checkbox"/> лятно часово време</label>
+</div>
+<div class="lbl">град</div>
+<div class="city-row">
+<input class="inp" id="city" placeholder="Напр. Sofia" type="text"/>
+<button class="cta small outline" id="citySearch" type="button">ТЪРСИ</button>
+</div>
+<div class="city-dropdown-wrap" style="grid-column: 1 / -1;">
+<select class="city-dropdown hidden" id="cityDropdown">
+<option disabled="" selected="">избери град</option>
+</select>
+</div>
+</div>
+<div class="btns-row">
+<button class="cta primary" disabled="" id="saveChoose"><span>ЗАПАЗИ И ИЗБЕРИ</span><span class="credit-chip"><span class="amt">10</span><img alt="Astro кредити" src="/images/icons/zodiac_circle_money.png"/></span></button>
+<button class="cta danger" disabled="" id="deleteProfile">ИЗТРИЙ</button>
+<button class="cta muted" id="clearForm" type="button">ИЗЧИСТИ</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Скриптове -->
+<script type="module">
+    import { handleRedirectResult, ensureSignedIn } from './firebase-init.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+    import { collection, getDocs, getFirestore, query, setLogLevel, where } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
+
+    try { setLogLevel('silent'); } catch(_) {}
+const auth = getAuth();
+const db   = getFirestore();
+// Гарантираме сесия (анонимна при нужда), после зареждаме профилите
+    await handleRedirectResult();
+    await ensureSignedIn();
+
+    // Конзолен лог на всички профили за текущия потребител (ownerId → uid → userId)
+    try {
+      if (!auth.currentUser) throw new Error('Няма влязъл потребител.');
+      const uid = auth.currentUser.uid;
+      const q = query(collection(db, 'profiles'), where('ownerId', '==', uid));
+      const snap = await getDocs(q);
+      const all = []; snap.forEach(d => all.push({ id: d.id, ...d.data() }));
+      console.group(`[Firestore] profiles (ownerId==${uid}) — count=${all.length}`);
+      console.log(all);
+      console.groupEnd();
+    } catch(e) { console.warn('[Firestore] Пропускам принт на profiles:', e); }
+
+    // Отвори модала, ако някой кеш ти го е скрил
+    document.getElementById('natalModal')?.classList.remove('hidden');
+  </script>
+<!-- Зарежда падащото меню с всички профили (ownerId / uid / userId) и попълва формата -->
+<div aria-live="polite" class="loading-overlay" hidden="" id="loadingOverlay" tabindex="-1">
+<div aria-label="Зареждане" class="loading-box" role="status">
+<div aria-hidden="true" class="spinner"></div>
+<div class="dots-wrap">
+<div class="dots">ГЕНЕРИРАНЕ</div>
+<div class="dots">МОЖЕ ДА ОТНЕМЕ 2-3 МИНУТИ</div>
+<div class="dots">МОЛЯ, ИЗЧАКАЙТЕ</div>
+</div>
+</div>
+</div>
+<section aria-live="polite" class="result hidden" id="resultStage">
+<h2 class="result-title" id="resultTitle"></h2>
+<div class="result-wrap">
+<img alt="Natal Chart" class="reveal-chart result-chart" hidden="" id="resultNatalImg"/>
+<div class="result-text" id="resultText"></div>
+</div>
+</section>
+<!-- Плаващ чат бутон (1:1 като horary/began) -->
+<button aria-label="Отвори чат" class="chat-fab" id="chatFab">
+<img alt="AstroChat" src="/images/icons/mercury.png"/>
+</button>
+<!-- Прозорец на чата -->
+<div aria-label="Астрологичен чат" aria-modal="true" class="chat-popup" id="chatPopup" role="dialog">
+<div class="chat-head">
+<h3>AstroChat</h3>
+<button id="chatClose" title="Затвори">✕</button>
+</div>
+<div aria-live="polite" class="chat-log" id="chatLog"></div>
+<form class="chat-form" id="chatForm">
+<input class="chat-input" id="chatInput" placeholder="Луна в Рак в 5 дом…" type="text"/>
+<button class="chat-send">Изпрати</button>
+</form>
+</div>
+<!-- chat-toggle final patch (no style changes) -->
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function ready(fn){ if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', fn, {once:true}); } else { fn(); } }
+  function setOpen(open){
+    var popup = $('chatPopup'), input = $('chatInput');
+    if(!popup) return;
+    popup.classList[open ? 'add' : 'remove']('open');
+    if(open && input){ setTimeout(function(){ try{ input.focus(); }catch(_){ } }, 0); }
+  }
+  function ensureToggle(el, onClick){
+    if(!el) return;
+    var clone = el.cloneNode(true);
+    el.parentNode.replaceChild(clone, el); // drop previous listeners without touching source code
+    clone.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+      onClick();
+    }, true); // capture to win over other handlers
+  }
+  ready(function(){
+    var fab = $('chatFab'), closeB = $('chatClose'), popup = $('chatPopup');
+    if(!popup || !fab) return;
+    ensureToggle(fab, function(){ setOpen(!(' ' + popup.className + ' ').includes(' open ')); });
+    if(closeB) ensureToggle(closeB, function(){ setOpen(false); });
+    window.addEventListener('keydown', function(ev){ if(ev.key === 'Escape'){ setOpen(false); } }, { passive:true });
+  });
+})();
+</script>
+<!-- chat typing animation (Messenger-like) -->
+<style id="chat-typing-style">
+/* Scope to chat only */
+#chatPopup .msg.typing .text{
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 44px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111827;
+}
+#chatPopup .msg.typing .text .dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c2c8d0;
+  display: inline-block;
+  animation: chat-bounce 1.15s ease-in-out infinite;
+}
+#chatPopup .msg.typing .text .dot:nth-child(2){ animation-delay: .12s; }
+#chatPopup .msg.typing .text .dot:nth-child(3){ animation-delay: .24s; }
+
+@keyframes chat-bounce{
+  0%, 60%, 100% { transform: translateY(0); opacity: .8; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+</style>
+
+<style id="patch-natal-mobile">
+/* Подреди бутоните ИЗТРИЙ и ИЗЧИСТИ под ЗАПАЗИ И ИЗБЕРИ на телефон */
+@media (max-width: 600px){
+  .form-actions, .btns-row, .natal-actions{
+    display: flex;
+    flex-direction: column;      /* вертикална подредба */
+    align-items: stretch;
+    gap: 8px;
+  }
+  /* ако основният бутон е .cta.primary (ЗАПАЗИ И ИЗБЕРИ), нека е първи */
+  .natal-actions .cta.primary { order: 0; }
+  .natal-actions .cta.delete { order: 1; }
+  .natal-actions .cta.clear  { order: 2; }
+
+  /* Центриране на "ГЕНЕРИРАНЕ..." */
+  #loadingOverlay, .loading-overlay{
+    display: grid;
+    place-items: center;
+  }
+  .dots-wrap{
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .dots-wrap .dots{ text-align: center; }
+}
+</style>
+
+<!-- chat typing patch (safe submit handler; no cloning) -->
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function ensureCallApi(){
+    if (typeof window.callApi === 'function') return window.callApi;
+    return async function(endpoint, body){
+      const res = await fetch(`/api/${endpoint}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body || {})
+      });
+      if (!res.ok){ throw new Error(`[${endpoint}] HTTP ` + res.status); }
+      return res.json();
+    };
+  }
+  function addMsg(role, text){
+    const log = $('chatLog'); if (!log) return;
+    const roleKey = (role === 'user') ? 'user' : 'bot';
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + roleKey;
+    wrap.innerHTML = '<div class="role">' + (roleKey==='user'?'Ти':'Бот') + '</div><div class="text"></div>';
+    wrap.querySelector('.text').textContent = String(text || '');
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+    return wrap;
+  }
+  function showTyping(){
+    if ($('chatTyping')) return $('chatTyping');
+    const log = $('chatLog'); if (!log) return null;
+    const wrap = document.createElement('div');
+    wrap.id = 'chatTyping';
+    wrap.className = 'msg bot typing';
+    wrap.innerHTML = '<div class="role">Бот</div><div class="text" aria-live="polite"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+    return wrap;
+  }
+  function hideTyping(){
+    const t = $('chatTyping'); if (t && t.parentNode) t.parentNode.removeChild(t);
+  }
+  function wire(){
+    const formId = 'chatForm';
+    const form = $(formId);
+    if (!form) return;
+    const callApi = ensureCallApi();
+    // Capture-phase handler: overrides other submit listeners without altering existing code
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      const input = $('chatInput');
+      const log = $('chatLog');
+      if (!input || !log) return;
+      const msg = (input.value || '').trim();
+      if (!msg){ input.focus(); return; }
+      addMsg('user', msg);
+      input.value = '';
+      const t = showTyping();
+      try{
+        let data;
+        try { data = await callApi('chat', { message: msg }); }
+        catch { data = await callApi('ask',  { question: msg }); }
+        hideTyping();
+        addMsg('bot', data?.reply || data?.answer || data?.text || data?.message || 'Няма отговор.');
+      } catch(err){
+        hideTyping();
+        addMsg('bot', 'Грешка: ' + (err?.message || err));
+      }
+    }, true); // capture
+  }
+  if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', wire, { once:true }); }
+  else { wire(); }
+})();
+</script>
+<!-- === Chatbot greeting (non-destructive) === -->
+<script>
+(function(){
+  var GREET_TEXT = "Здравейте, аз съм вашият личен астролог. Може да ме питате всичко.";
+  function addGreeting(){
+    try{
+      var log = document.getElementById('chatLog');
+      if (!log || log.dataset.greeted === 'true') return;
+      var wrap = document.createElement('div');
+      wrap.className = 'msg bot';
+      var role = document.createElement('div');
+      role.className = 'role';
+      role.textContent = 'Бот';
+      var txt = document.createElement('div');
+      txt.className = 'text bot-greeting';
+      txt.textContent = GREET_TEXT;
+      wrap.appendChild(role); wrap.appendChild(txt);
+      log.appendChild(wrap);
+      log.dataset.greeted = 'true';
+      try { log.scrollTop = log.scrollHeight; } catch(_){}
+    }catch(_){}
+  }
+  // Wrap global toggleChat if present
+  (function wrapToggle(){
+    try{
+      var prev = window.toggleChat;
+      if (typeof prev === 'function' && !prev.__withGreeting){
+        function wrapped(open){
+          var r = prev.apply(this, arguments);
+          if (open) setTimeout(addGreeting, 0);
+          return r;
+        }
+        wrapped.__withGreeting = true;
+        window.toggleChat = wrapped;
+      }
+    }catch(_){}
+  })();
+  // Also observe the chat popup class changes and the FAB click as fallbacks
+  document.addEventListener('DOMContentLoaded', function(){
+    var fab = document.getElementById('chatFab');
+    var popup = document.getElementById('chatPopup');
+    if (fab) fab.addEventListener('click', function(){ setTimeout(addGreeting, 0); }, { passive:true });
+    if (popup && 'MutationObserver' in window){
+      var mo = new MutationObserver(function(){
+        if (popup.classList.contains('open')) setTimeout(addGreeting, 0);
+      });
+      mo.observe(popup, { attributes:true, attributeFilter:['class'] });
+    }
+    // Last resort: greet shortly after load if chat is already open
+    setTimeout(function(){
+      var popup = document.getElementById('chatPopup');
+      if (popup && popup.classList.contains('open')) addGreeting();
+    }, 800);
+  });
+})();
+</script>
+
+<script src="credits-auto-loader.js"></script>
+
+<!-- Astro Credits: confirmation modal -->
+  <div id="creditConfirm" class="cc-scrim" hidden>
+    <div class="cc-modal" role="dialog" aria-modal="true" aria-labelledby="cc-title">
+      <h3 id="cc-title" class="cc-title">Потвърдете покупката</h3>
+      <div class="cc-body">
+        <p class="cc-line">
+          <span>Този анализ струва</span>
+          <span class="num"><span id="cc-cost">15</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита.</span>
+        </p>
+        <p class="cc-line">
+          <span>Вие имате</span>
+          <span class="num"><span id="cc-balance">0</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита.</span>
+
+        </p>
+        <p class="cc-line warn">
+          <span class="num"><span id="cc-cost2">15</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита ще бъдат взети от профила!</span>
+        </p>
+        <div class="cc-actions">
+          <button id="cc-cancel" class="cta muted" type="button">Откажи</button>
+          <button id="cc-confirm" class="cta primary" type="button">Потвърди</button>
+        </div>
+        <div class="cc-note">Можете да управлявате кредитите си в профила.</div>
+      </div>
+    </div>
+
+    <style>
+/* AC: 1.5x bigger credit icons in the warning modal */
+#creditConfirm .cc-line .ico,
+#creditConfirm .cc-ico{
+  width: 27px !important;
+  height: 27px !important;
+}
+</style>
+
+<script src="natal-modal.js" type="module"></script>
+<script src="credits-auto-loader.js"></script>
+
+</body>
+</html>

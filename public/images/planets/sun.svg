@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <!-- Radial gradient for photosphere -->
+    <radialGradient id="g-photosphere" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#fff6b3"/>
+      <stop offset="45%" stop-color="#ffd259"/>
+      <stop offset="70%" stop-color="#ff9a1a"/>
+      <stop offset="100%" stop-color="#c84b00"/>
+    </radialGradient>
+
+    <!-- Corona gradient (fade to transparent) -->
+    <radialGradient id="g-corona" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="rgba(255,208,85,0.55)"/>
+      <stop offset="60%" stop-color="rgba(255,144,0,0.22)"/>
+      <stop offset="100%" stop-color="rgba(255,144,0,0)"/>
+    </radialGradient>
+
+    <!-- Surface granulation: displace the disc by fractal noise to suggest convection cells -->
+    <filter id="f-surface" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox">
+      <!-- Fine-grain noise -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" seed="7" result="noise"/>
+      <!-- Soften the noise -->
+      <feGaussianBlur stdDeviation="0.6" in="noise" result="nsoft"/>
+      <!-- Displace the gradient with noise -->
+      <feDisplacementMap in="SourceGraphic" in2="nsoft" scale="14" xChannelSelector="R" yChannelSelector="G" />
+      <!-- Slight color boost -->
+      <feColorMatrix type="saturate" values="1.2"/>
+    </filter>
+
+    <!-- Outer glow for corona -->
+    <filter id="f-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="18" edgeMode="duplicate"/>
+    </filter>
+
+    <!-- Small limb darkening overlay -->
+    <radialGradient id="g-limb" cx="50%" cy="50%" r="50%">
+      <stop offset="70%" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.20)"/>
+    </radialGradient>
+
+    <!-- Mask to keep everything circular -->
+    <mask id="m-disc">
+      <rect x="0" y="0" width="1024" height="1024" fill="black"/>
+      <circle cx="512" cy="512" r="388" fill="white"/>
+    </mask>
+
+    <!-- Subtle filament texture overlay -->
+    <filter id="f-filaments" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="turbulence" baseFrequency="0.02 0.35" numOctaves="2" seed="11" result="t1"/>
+      <feColorMatrix in="t1" type="matrix" values="
+        1 0 0 0 0
+        0 1 0 0 0
+        0 0 1 0 0
+        0 0 0 .55 0" result="t2"/>
+      <feBlend in="SourceGraphic" in2="t2" mode="overlay"/>
+    </filter>
+  </defs>
+
+  <!-- Transparent canvas background by default -->
+
+  <!-- Corona (under the disc) -->
+  <g filter="url(#f-glow)" opacity="0.9">
+    <circle cx="512" cy="512" r="460" fill="url(#g-corona)"/>
+  </g>
+
+  <!-- Main solar disc with surface granulation -->
+  <g mask="url(#m-disc)">
+    <circle cx="512" cy="512" r="388" fill="url(#g-photosphere)" filter="url(#f-surface)"/>
+    <!-- Limb darkening -->
+    <circle cx="512" cy="512" r="388" fill="url(#g-limb)" />
+    <!-- Filaments overlay -->
+    <g filter="url(#f-filaments)" opacity="0.15">
+      <rect x="124" y="124" width="776" height="776" fill="#ff7a00" />
+    </g>
+  </g>
+
+  <!-- A few subtle prominences -->
+  <g opacity="0.65" filter="url(#f-glow)">
+    <path d="M512 36 C 550 60, 560 80, 560 100 C 520 100, 500 80, 512 36 Z" fill="#ff7a00"/>
+    <path d="M950 512 C 930 540, 900 550, 880 560 C 892 520, 920 510, 950 512 Z" fill="#ff7a00"/>
+    <path d="M74 512 C 120 492, 130 480, 148 468 C 110 468, 96 490, 74 512 Z" fill="#ff7a00"/>
+    <path d="M512 988 C 486 950, 476 930, 474 910 C 512 920, 528 940, 512 988 Z" fill="#ff7a00"/>
+  </g>
+</svg>

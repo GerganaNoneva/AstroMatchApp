@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <style><![CDATA[
+      .house-body { fill: #f2f2f2; stroke: #222; stroke-width: 6; }
+      .roof { fill: #e15241; stroke: #222; stroke-width: 6; }
+      .chimney { fill: #cc4a3b; stroke: #222; stroke-width: 6; }
+      .door { fill: #8e5524; stroke: #222; stroke-width: 6; }
+      .knob { fill: #ffdd55; stroke: #222; stroke-width: 4; }
+      .window { fill: #72a7f7; stroke: #222; stroke-width: 6; }
+      .pane { stroke: #222; stroke-width: 6; }
+      .shadow { fill: #000; opacity: 0.08; }
+      .num { font-family: system-ui, -apple-system, Segoe UI, Arial, sans-serif; font-weight: 800; font-size: 150px; text-anchor: middle; dominant-baseline: middle; fill: #111;
+              paint-order: stroke; stroke: #fff; stroke-width: 12px; }
+    ]]></style>
+  </defs>
+
+    <g>
+      <ellipse class="shadow" cx="256.0" cy="409.0" rx="150" ry="24"/>
+      <!-- Roof -->
+      <rect class="chimney" x="302.0" y="72.0" width="30" height="74" rx="6" ry="6"/>
+      <polygon class="roof" points="125.0,201.0 256.0,116.0 387.0,201.0"/>
+      <!-- House body -->
+      <rect class="house-body" x="141.0" y="191.0" width="230" height="190" rx="24" ry="24"/>
+      <!-- Windows -->
+      <rect class="window" x="165.0" y="231.0" width="52" height="52" rx="10" ry="10"/>
+      <line class="pane" x1="191.0" y1="231.0" x2="191.0" y2="283.0"/>
+      <line class="pane" x1="165.0" y1="257.0" x2="217.0" y2="257.0"/>
+      <rect class="window" x="295.0" y="231.0" width="52" height="52" rx="10" ry="10"/>
+      <line class="pane" x1="321.0" y1="231.0" x2="321.0" y2="283.0"/>
+      <line class="pane" x1="295.0" y1="257.0" x2="347.0" y2="257.0"/>
+      <!-- Door -->
+      <rect class="door" x="226.0" y="275.0" width="60" height="96" rx="10" ry="10"/>
+      <circle class="knob" cx="271.0" cy="323.0" r="6"/>
+      <!-- Number -->
+      <text class="num" x="256.0" y="296.0">1</text>
+    </g>
+    </svg>

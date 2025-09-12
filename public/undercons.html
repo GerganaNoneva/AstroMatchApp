@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>В разработка</title>
+  <meta name="theme-color" content="#0b0b0e" />
+  <style>
+    html,body{height:100%;margin:0;background:#0b0b0e;}
+    /* Видеото е по-нисък слой */
+    .wrap{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+      z-index:1; /* под бутона */
+      /* ако искаш да не прихваща кликове, разкоментирай следния ред: */
+      /* pointer-events:none; */
+    }
+    video{width:min(95vw,1200px);height:90vh;object-fit:contain}
+    /* Бутонът отгоре */
+    .back{
+      position:fixed;top:16px;left:16px;padding:.55rem .9rem;border-radius:999px;
+      font:600 14px/1.1 system-ui;background:#fff;color:#4c1d95;border:2px solid #4c1d95;
+      text-decoration:none;z-index:10000; /* ключово */
+    }
+  </style>
+</head>
+<body>
+  <a class="back" href="./began.html">← Обратно</a>
+
+  <div class="wrap">
+    <video autoplay playsinline muted loop>
+      <source src="videos/underCons.mp4" type="video/mp4" />
+      Браузърът не поддържа видео.
+    </video>
+  </div>
+</body>
+</html>

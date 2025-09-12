@@ -1,0 +1,636 @@
+
+/* responsive-mobile.css — ONLY mobile overrides, desktop stays intact */
+/* Link this AFTER your existing CSS files. */
+
+/* Small phones */
+@media (max-width: 380px){
+  .cta{ padding: .8rem 1.2rem; font-size: 1rem; min-height: 44px; }
+  .login{ top: 12px; right: 12px; }
+}
+
+/* Phones up to ~600px */
+@media (max-width: 600px){
+  /* General spacing */
+  body{ -webkit-text-size-adjust: 100%; }
+  .overlay{ backdrop-filter: blur(2px); }
+
+  /* Background video sizing */
+  #bg-video{ inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+  /* Hero */
+  .hero{ min-height: 100dvh; padding: 0 14px; gap: 28px; }
+  .hero h1{ font-size: clamp(2rem, 8vw, 3rem); letter-spacing: .04em; }
+
+  /* Profile header */
+  .profile-header{ top: 16px; right: 16px; gap: 10px; }
+  .avatar{ width: 64px; height: 64px; border-width: 2px; }
+
+  /* Profile menu: keep as dropdown, just ensure it fits on small screens */
+  .profile-menu{ min-width: 200px; max-width: calc(100vw - 24px); right: 0; }
+
+  /* Video grid: turn flex row into grid stack on mobile */
+  .video-grid{
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 16px;
+    height: auto; /* avoid fixed viewport height on mobile */
+  }
+  /* Very small phones -> single column */
+  @media (max-width: 420px){
+    .video-grid{ grid-template-columns: 1fr; }
+  }
+  .video-item{ max-width: 100%; }
+  .video-item video{ width: 100%; height: auto; aspect-ratio: 9/16; border-radius: 16px 16px 0 0; }
+  .video-item p{ font-size: clamp(1rem, 3.6vw, 1.2rem); padding: .5rem .6rem; }
+
+  /* Modals: narrower and with comfortable padding */
+  .modal-content{
+    width: min(92vw, 420px);
+    padding: 1rem 1.1rem;
+    border-radius: 16px;
+  }
+  .modal-close{ font-size: 1.8rem; top: .5rem; right: .6rem; }
+
+  /* Forms: stack nicely and enlarge tap areas */
+  .birth-form{ gap: .65rem; }
+  .birth-form .row-inline{
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .5rem;
+  }
+  .birth-form input[type="text"],
+  .birth-form input[type="date"],
+  .birth-form input[type="time"],
+  .birth-form select{
+    font-size: 1rem;
+    padding: .6rem .7rem;
+    border-radius: 12px;
+  }
+  #myCityResults,
+  #addCityResults,
+  #manageCityResults{
+    width: 100%;
+    margin-top: .45rem;
+    padding: .5rem;
+    border-radius: 12px;
+    font-size: 1rem;
+  }
+
+  /* Buttons */
+  .cta{ min-height: 44px; }
+  .cta.small{ padding: .55rem .9rem; border-radius: 12px; }
+
+  /* Loader video covers viewport without overflowing */
+  #videoLoader video{ width: 100vw; height: 100vh; object-fit: cover; }
+}
+
+/* Tablets (preserve desktop layout but soften spacing) */
+@media (min-width: 601px) and (max-width: 900px){
+  .video-grid{
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    padding: 20px;
+    height: auto;
+  }
+  .modal-content{ width: min(86vw, 560px); }
+}
+
+/* Portrait-specific layout: always single column for the video grid */
+@media (orientation: portrait) and (max-width: 600px){
+  .video-grid{ grid-template-columns: 1fr !important; }
+}
+
+
+/* === My Data modal: stack 3 panels vertically on phones and make the form touch-friendly === */
+@media (max-width: 700px){
+  #myDataContent.modal-content{
+    width: min(96vw, 560px);
+    height: auto;
+    padding: 16px 14px;
+  }
+  #myDataContent .md-grid{
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  /* Order: 1) form, 2) planets list, 3) chart */
+  #myDataContent .md-right{ order: 1; }
+  #myDataContent .md-middle{ order: 2; }
+  #myDataContent .md-left{ order: 3; }
+
+  #myDataContent .md-left,
+  #myDataContent .md-middle,
+  #myDataContent .md-right{ width: 100% !important; }
+
+  /* Form sizing overrides (win over previously tiny desktop overrides) */
+  #myDataModal #myDataContent #mdForm{ font-size: 1rem !important; }
+  #myDataModal #myDataContent #mdForm .title{ font-size: 1.2rem !important; }
+  #myDataModal #myDataContent #mdForm label,
+  #myDataModal #myDataContent #mdForm small{ font-size: .95rem !important; }
+  #myDataModal #myDataContent #mdForm input[type="date"],
+  #myDataModal #myDataContent #mdForm input[type="time"],
+  #myDataModal #myDataContent #mdForm input[type="text"]{
+    font-size: 1rem !important;
+    padding: .6rem .75rem !important;
+    border-radius: 12px !important;
+  }
+  #myDataModal #myDataContent #mdForm .md-actions .md-save,
+  #myDataModal #myDataContent #mdForm .md-search{
+    font-size: 1rem !important;
+    padding: .6rem .9rem !important;
+    border-radius: 12px !important;
+  }
+
+  /* City dropdown & layout */
+  #myDataContent #mdForm .md-row{ flex-wrap: wrap; row-gap: .5rem; }
+  #myDataContent #mdForm #mdCity{ flex: 1 1 100% !important; max-width: 100% !important; }
+  #mdDropdown{ width: 100% !important; }
+  #mdDropdown .dropdown-menu{ width: 100% !important; max-height: 220px; overflow:auto; }
+
+  /* Planets panel should not be capped on phones */
+  #myDataContent .md-middle .md-placements{ max-height: none !important; }
+}
+
+
+/* === Mobile override: order on phones (chart -> planets -> form) === */
+@media (max-width: 700px){
+  /* Make the modal content scrollable on small screens */
+  #myDataContent{
+    max-height: 94vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Stack vertically */
+  #myDataContent .md-grid{
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  /* Desired order: 1) chart (left), 2) planets (middle), 3) form (right) */
+  #myDataContent .md-left  { order: 1 !important; width: 100% !important; }
+  #myDataContent .md-middle{ order: 2 !important; width: 100% !important; }
+  #myDataContent .md-right { order: 3 !important; width: 100% !important; }
+
+  /* Chart image responsive */
+  #myDataContent .md-chart{
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  #mdChart{ width: 100% !important; height: auto !important; }
+
+  /* Allow planets panel to grow and be readable */
+  #myDataContent .md-middle .md-placements{
+    max-height: none !important;
+  }
+}
+
+
+/* === Profiles Modal: mobile-friendly layout (<=600px) === */
+@media (max-width: 600px){
+  /* Shrink overall typography slightly */
+  #profilesContent{ font-size: .95rem; }
+  #profilesContent .pm-title{ font-size: 1.05rem; }
+
+  /* Inputs smaller and comfy */
+  #profilesContent input[type="text"],
+  #profilesContent input[type="date"],
+  #profilesContent input[type="time"]{
+    font-size: .95rem;
+    padding: .5rem .6rem;
+    border-radius: 10px;
+  }
+
+  /* Stack action buttons vertically (Save/Delete/Clear) */
+  #profilesContent .pm-actions{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  #profilesContent .pm-actions .pm-btn{
+    width: 100%;
+    padding: .6rem .8rem;
+    font-size: 1rem;
+  }
+
+  /* Make the city search row wrap neatly */
+  #profilesContent .pm-row-city .pm-city-search{
+    flex-direction: column;
+    gap: 6px;
+  }
+  #profilesContent #pmCityDropdown{
+    width: 100% !important;
+    margin: 4px 0 0 0 !important; /* drop left offset on phones */
+  }
+  #profilesContent #pmCityDropdown .dropdown-menu{
+    min-width: 100% !important;
+    max-height: 220px;
+    overflow: auto;
+  }
+}
+
+/* Extra-small phones: put labels above fields for more room */
+@media (max-width: 420px){
+  #profilesContent .pm-row{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  #profilesContent .pm-row > label{
+    min-width: 0;
+    margin-bottom: 0;
+  }
+}
+
+
+/* === Mobile: Full-height Profiles Modal & city search layout === */
+@media (max-width: 600px){
+  /* Stretch the modal content to the full viewport */
+  #profilesModal{ place-items: stretch; }
+  #profilesContent.modal-content{
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    padding: 12px 14px 16px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Profiles: city row -> one line (input + short button) */
+  #profilesContent .pm-row-city .pm-city-search{
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  #profilesContent .pm-row-city .pm-city-search .pm-btn,
+  #profilesContent #pmSearch.pm-btn{
+    padding: .55rem .75rem !important;
+    min-width: auto !important;
+    white-space: nowrap;
+  }
+  /* Dropdown under the city input takes full width on phones */
+  #profilesContent #pmCityDropdown{
+    width: 100% !important;
+    margin: 6px 0 0 0 !important;
+  }
+  #profilesContent #pmCityDropdown .dropdown-menu{
+    max-height: 40vh;
+    overflow: auto;
+  }
+
+  /* Wizard: keep search input and button on one line, make button shorter */
+  .wizard .search-row{
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .wizard .search-row .search-btn{
+    padding: .6rem .8rem !important;
+    min-width: auto !important;
+    white-space: nowrap;
+  }
+}
+
+/* =============================================================
+   OVERRIDES (2025-08-26 07:37)
+   - Allow page scrolling on phones
+   - Home page: 3 tiles on one row with horizontal scroll
+   - Profiles modal (#profilesContent): more spacing below city field; buttons lower
+   - Profile page: force 2 columns for .video-grid (except home)
+   ============================================================= */
+@media (max-width: 600px){
+  /* Always allow page scroll on small screens, even if base CSS hides overflow */
+  html, body{
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  /* began.html -> container is .video-grid.home-video-grid */
+  .video-grid.home-video-grid{
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    padding: 12px !important;
+    overflow-x: auto !important;   /* if content overflows horizontally -> scroll */
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+  .video-grid.home-video-grid .video-item{
+    flex: 0 0 calc((100vw - 24px - 20px)/3); /* approx 3 tiles across */
+    max-width: none !important;
+    height: auto !important;
+    scroll-snap-align: start;
+  }
+  .video-grid.home-video-grid .video-item video{
+    width: 100% !important;
+    height: auto !important;
+  }
+  .video-grid.home-video-grid .video-item p{
+    font-size: 1rem;
+  }
+
+  /* Profiles modal: spacing below the city input and push action buttons lower */
+  #profilesContent .pm-row-city{ margin-bottom: 14px !important; }
+  #profilesContent .pm-row-city .pm-city-search{ margin-bottom: 8px !important; }
+  #profilesContent #pmCityDropdown{ margin-top: 8px !important; }
+  #profilesContent .pm-actions{
+    margin-top: 18px !important;
+    gap: 10px !important;
+  }
+
+  /* Profile page: keep 2 columns on phones for any .video-grid that is not the home grid */
+  .video-grid:not(.home-video-grid){
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* === Mobile tweak (2025-08-26 07:45): Profiles modal city dropdown should push content, not overlap === */
+@media (max-width: 600px){
+  /* Put the dropdown container back in normal flow */
+  #profilesContent #pmCityDropdown{
+    position: static !important;
+    z-index: auto !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+  /* Make the menu part of the flow and only show when .open */
+  #profilesContent #pmCityDropdown .dropdown-menu{
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    margin-top: 8px !important;
+    width: 100% !important;
+    max-height: 40vh !important;
+    overflow: auto !important;
+    box-shadow: none !important;
+    display: none !important; /* hidden by default */
+  }
+  #profilesContent #pmCityDropdown.open .dropdown-menu{
+    display: block !important; /* shown when container has .open (set by JS) */
+  }
+}
+
+/* ===== Profile (mobile): 2x2 layout + ~3x по-ниски плочки ===== */
+@media (max-width: 600px){
+  /* 2 колони само за профилната решетка (не за началната) */
+  .video-grid:not(.home-video-grid){
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    height: auto !important;
+  }
+
+  .video-grid:not(.home-video-grid) .video-item{
+    max-width: none !important;
+    height: auto !important;
+  }
+
+  /* Правим видеото ~3 пъти по-ниско: 16/9 вместо 9/16 */
+  .video-grid:not(.home-video-grid) .video-item video{
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9 !important; /* по-ниско */
+    object-fit: cover;
+    border-radius: 16px 16px 0 0;
+  }
+}
+
+/* Портретен режим: запази 2 колони за профила (надделява над общия 1 колона) */
+@media (orientation: portrait) and (max-width: 600px){
+  .video-grid:not(.home-video-grid){
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ===== Phones LANDSCAPE: върни десктопния изглед ===== */
+@media (orientation: landscape) and (max-width: 900px){
+  /* Профилната решетка да използва desktop поведение (flex), не grid */
+  .video-grid:not(.home-video-grid){
+    display: flex !important;
+    /* ако на десктоп е с wrap, махни следното; ако е в един ред — остави го */
+    flex-wrap: wrap; /* при нужда може да стане nowrap */
+    gap: inherit;    /* пазим празнините от desktop CSS */
+    padding: inherit;
+  }
+  /* Върни високите видеа, както на десктоп */
+  .video-grid:not(.home-video-grid) .video-item video{
+    aspect-ratio: 9 / 16 !important;
+    height: 100% auto;
+  }
+}
+
+/* ===== Phones PORTRAIT: 2×2 и по-ниски плочки (както поискахме за мобилно) ===== */
+@media (orientation: portrait) and (max-width: 600px){
+  .video-grid:not(.home-video-grid){
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    padding: 12px !important;
+  }
+  .video-grid:not(.home-video-grid) .video-item video{
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9 !important; /* ~3× по-ниски */
+    object-fit: cover;
+    border-radius: 16px 16px 0 0;
+  }
+}
+
+/* === Phone landscape: wider tiles (1.5x) and allow page scroll === */
+@media (orientation: landscape) and (hover: none) and (pointer: coarse) and (max-width: 900px){
+  html, body{
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 3 колони, видеата са 1.5× по-широки (3:2) */
+  .video-grid{
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    height: auto !important;
+  }
+  .video-grid .video-item{ max-width: 100% !important; }
+  .video-grid .video-item video{
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 3 / 2 !important; /* 1.5× wider */
+    border-radius: 16px 16px 0 0;
+  }
+  .video-grid .video-item p{
+    font-size: clamp(.95rem, 2.6vw, 1.1rem);
+    text-align: center;
+  }
+}
+
+/* Нека фонът да скролва (вместо fixed) в phone landscape */
+@media (orientation: landscape) and (hover: none) and (pointer: coarse) and (max-width: 900px){
+  body{ background-attachment: scroll !important; }
+}
+/* === Phone landscape: scrollable profile modals === */
+@media (orientation: landscape) and (hover: none) and (pointer: coarse) and (max-width: 900px){
+  /* Падащо меню до профила */
+  #profileMenu,
+  #profileMenu.pmenu{
+    max-height: min(85vh, 85svh) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  /* Съдържанието на модала "Профили" */
+  #profilesContent,
+  #profilesContent.modal-content{
+    max-height: min(85vh, 85svh) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  /* Overlay-ът да не “краде” скрола от съдържанието */
+  #profilesModal{
+    overflow: hidden !important;
+  }
+}
+
+
+
+/* === Synastry (mobile) overrides — 2025-09-07 ===
+   - Allow page scroll on phones even if base CSS locked the viewport
+   - Make the synastry modal full-height and vertically scrollable
+   - Ensure each partner card's inner form area can scroll smoothly
+   - Improve small-phone form layout
+*/
+@media (max-width: 700px){
+  /* Always allow page scroll on small screens */
+  html, body{
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Synastry modal container spans the viewport and stretches content */
+  #synastryModal{
+    height: 100dvh !important;
+    align-items: stretch !important;
+    padding-top: 0 !important;
+  }
+  #synastryModal .modal-content{
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
+  }
+
+  /* Stack the two partner panels */
+  .synastry-grid{
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+  }
+
+  /* Let each card grow naturally; scrolling happens in the inner scroller */
+  .syn-card{
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Smooth, momentum scrolling for the form area */
+  .syn-scroller{
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Easier to tap close button on small screens */
+  .modal-close{
+    font-size: 2rem !important;
+    top: .5rem !important;
+    right: .6rem !important;
+  }
+}
+
+/* Extra-small phones: labels above inputs for more room */
+@media (max-width: 380px){
+  .syn-card .form-grid{
+    grid-template-columns: 1fr !important;
+    row-gap: 8px !important;
+  }
+  .syn-card .lbl{
+    margin-top: 6px !important;
+  }
+}
+
+
+/* === Mobile scroll fix for Synastry modal & page === */
+@media (max-width: 700px) {
+  html, body{
+    height: auto !important;
+    min-height: 100%;
+    overflow-y: auto !important;
+  }
+
+  /* Make the overlay fill the dynamic viewport and allow content scroll */
+  #synastryModal{
+    height: 100dvh !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding-top: 0 !important;
+  }
+
+  #synastryModal .modal-content{
+    max-height: 100dvh !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Ensure the inner scroller always scrolls on mobile */
+  .syn-scroller{
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Avoid fixed background locking scroll */
+  #bg-video{ position: absolute !important; }
+}
+
+/* Mobile: бутонът да е под формите, на 100% ширина */
+@media (max-width: 980px){
+  .analyze-footer{
+    position: static;        /* спира фиксирането */
+    display: block;          /* вместо flex центриране */
+    padding: 12px 12px 16px; /* приятна възглавница отдолу */
+    background: transparent;
+    pointer-events: auto;    /* за всеки случай, да приема кликове */
+    z-index: auto;
+  }
+  .analyze-footer .cta{
+    width: 100%;             /* широк бутон за телефон */
+    max-width: none;
+  }
+}

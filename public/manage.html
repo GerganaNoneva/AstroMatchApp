@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#9b8cff" />
+  <link rel="icon" type="image/gif" href="images/heartLogo.gif" />
+  <title>Управление на профили</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="profile.css" />
+  <link rel="stylesheet" href="natal.css" />
+</head>
+<body>
+  <!-- фон, както в natal.html -->
+  <video id="bg-video" autoplay playsinline muted loop>
+    <source src="videos/natal2.mp4" type="video/mp4" />
+    Твоят браузър не поддържа HTML5 видео.
+  </video>
+  <div class="overlay"></div>
+
+  <!-- Модал – същия стил като natal -->
+  <div id="manageModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Затвори" onclick="history.back()">&times;</button>
+      <h2 class="modal-title">Избери профил:</h2>
+
+      <!-- Падащ списък с профили -->
+      <div class="form-group">
+        <label for="profileSelect">Профил</label>
+        <select id="profileSelect" class="w-full p-2 border rounded"></select>
+      </div>
+
+      <!-- Форма (същите полета като в natal) -->
+      <form id="manageForm" class="birth-form">
+        <div class="form-group">
+          <label for="mName">Име</label>
+          <input type="text" id="mName" required />
+        </div>
+        <div class="form-group">
+          <label for="mDate">Дата на раждане</label>
+          <input type="date" id="mDate" required />
+        </div>
+        <div class="form-group">
+          <label for="mTime">Час на раждане</label>
+          <input type="time" id="mTime" required />
+        </div>
+        <div class="form-group">
+          <label for="mCity">Град (латиница)</label>
+          <div class="row-inline">
+            <input type="text" id="mCity" placeholder="e.g. Sofia" />
+            <button type="button" id="mSearchBtn" class="cta small">ТЪРСИ</button>
+          </div>
+          <select id="mCityResults" size="5" class="hidden"></select>
+        </div>
+
+        <div class="form-group row-inline">
+          <input type="checkbox" id="mDST" />
+          <label for="mDST">Лятно часово време</label>
+        </div>
+
+        <button type="submit" id="mSaveBtn" class="cta">ЗАПАЗИ</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="firebase-init.js"></script>
+  <script type="module" src="manage-profiles.js"></script>
+</body>
+</html>

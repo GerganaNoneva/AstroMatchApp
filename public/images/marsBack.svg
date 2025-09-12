@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Mars Back Icon</title>
+  <defs>
+    <style>
+      .stroke { fill: none; stroke: #000; stroke-width: 28; stroke-linecap: round; stroke-linejoin: round; }
+      .label { font: 900 92px/1 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; fill: #d60d0d; letter-spacing: 2px; }
+    </style>
+  </defs>
+
+  <!-- Circle -->
+  <circle class="stroke" cx="212" cy="300" r="170"/>
+  <!-- Arrow (shaft) -->
+  <line class="stroke" x1="328" y1="184" x2="472" y2="40"/>
+  <!-- Arrowhead -->
+  <line class="stroke" x1="472" y1="40" x2="472" y2="128"/>
+  <line class="stroke" x1="472" y1="40" x2="384" y2="40"/>
+
+  <!-- BACK text -->
+  <text x="212" y="320" text-anchor="middle" dominant-baseline="middle" class="label">BACK</text>
+</svg>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Transparent background -->
+  <defs/>
+  <!-- Outer ring -->
+  <circle cx="512" cy="512" r="460" fill="none" stroke="#9B4CFF" stroke-width="48"/>
+  <!-- Inner circle -->
+  <circle cx="512" cy="512" r="420" fill="#4C1D95"/>
+  <!-- Left arrow (white) -->
+  <g fill="#FFFFFF">
+    <!-- shaft -->
+    <rect x="464" y="462" width="320" height="100" rx="16" ry="16"/>
+    <!-- head (pointing left) -->
+    <path d="M 264 512 L 464 412 L 464 612 Z"/>
+  </g>
+
+  <!-- Broken heart (white), positioned bottom-right -->
+  <!-- Left half -->
+  <path fill="#FFFFFF" d="
+    M 610 720
+    C 610 676, 648 642, 690 642
+    C 712 642, 732 650, 748 664
+    C 728 676, 712 692, 700 712
+    L 672 756 L 696 772 L 640 844
+    C 588 796, 558 764, 546 740
+    C 536 720, 538 694, 552 676
+    C 568 656, 590 644, 610 644
+    C 610 644, 610 720, 610 720 Z"/>
+  <!-- Right half with crack -->
+  <path fill="#FFFFFF" d="
+    M 748 664
+    C 768 682, 780 708, 780 736
+    C 780 786, 742 818, 672 872
+    L 708 816 L 684 800 L 732 732
+    C 744 714, 760 696, 780 682
+    C 770 672, 760 666, 748 664 Z"/>
+</svg>

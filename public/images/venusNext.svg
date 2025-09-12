@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Venus Next Icon</title>
+  <defs>
+    <style>
+      .stroke { fill: none; stroke: #000; stroke-width: 28; stroke-linecap: round; stroke-linejoin: round; }
+      .label { font: 900 92px/1 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; fill: #1a9a2a; letter-spacing: 2px; }
+    </style>
+  </defs>
+
+  <!-- Circle -->
+  <circle class="stroke" cx="256" cy="208" r="170"/>
+  <!-- Stem -->
+  <line class="stroke" x1="256" y1="378" x2="256" y2="470"/>
+  <!-- Cross -->
+  <line class="stroke" x1="208" y1="424" x2="304" y2="424"/>
+
+  <!-- NEXT text -->
+  <text x="256" y="220" text-anchor="middle" dominant-baseline="middle" class="label">NEXT</text>
+</svg>

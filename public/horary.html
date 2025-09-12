@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="bg">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#9b8cff" />
+  <link rel="icon" type="image/gif" href="images/heartLogo.gif" />
+  <title>Хорарна астрология</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="horary.css" />
+
+  <style id="loader-styles">
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 2;
+      background: transparent;
+    }
+    .loading-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      padding: 48px 56px;
+      border-radius: 16px;
+      backdrop-filter: blur(4px);
+    }
+    .spinner {
+      width: 144px;
+      height: 144px;
+      border: 12px solid rgba(255,255,255,0.35);
+      border-top-color: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .dots {
+      font: 600 28px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100% { opacity: .7 } 50% { opacity: 1 } }
+      .loading-overlay[hidden]{ display: none !important; }
+  
+/* === Added: tightly stacked generating lines === */
+.dots-wrap{ display:flex; flex-direction:column; align-items:center; gap:0; }
+.dots-wrap .dots{ line-height:1; margin:0; }
+</style>
+
+
+  
+
+<style>
+/* === Astro Credits: cost pill on analyze button === */
+.credit-pill{
+  display:inline-flex; align-items:center; gap:6px;
+  margin-left:10px; padding:4px 8px;
+  border-radius:999px; background:transparent;
+  
+  font-weight:800; color:#4c1d95;
+}
+.credit-pill .amt{ font-size:16px; line-height:1; }
+.credit-pill img{ width: 40px; height: 40px; display:inline-block; }
+
+/* === Astro Credits: pretty confirm modal === */
+.cc-scrim{
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(22, 0, 37, .45);
+  backdrop-filter:saturate(1.2) blur(2px);
+  z-index:2147482000;
+}
+.cc-scrim[hidden]{ display:none !important; }
+.cc-modal{
+  width:min(92vw, 520px);
+  border-radius:18px;
+  padding:18px 18px 14px;
+  background: linear-gradient(135deg, #ffe1f3 0%, #eadbff 100%);
+  
+  color:#1f2937;
+}
+.cc-title{
+  margin:0 0 10px; font-weight:900; letter-spacing:.02em; color:#4c1d95;
+  font-size:clamp(18px, 3vw, 22px); text-align:center;
+}
+.cc-body{ background:#fff; border-radius:14px; padding:12px 14px;  }
+.cc-line{ margin:8px 0; font-size:15px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.cc-line .num{ font-weight:900; font-size:16px; color:#111827; display:inline-flex; align-items:center; gap:6px; }
+.cc-line .ico, .cc-ico{ width:18px; height:18px; vertical-align:middle; }
+.cc-line.warn{ color:#7c3aed; font-weight:700; }
+.cc-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+.cc-actions .cta{ min-height:36px; padding:8px 12px; }
+.cc-note{ font-size:12px; opacity:.7; margin-top:6px; text-align:center; }
+
+/* Insufficient state */
+.cc-insufficient .cc-body{ background:linear-gradient(180deg,#fff1f2 0%, #ffe4e6 100%); }
+.cc-insufficient .cc-title{ color:#b91c1c; }
+
+.cta.primary {
+    background: #4c1d95;
+    color: #fff;
+}
+
+.cta.muted {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.cta {
+    background: linear-gradient(135deg, #dcd0ff 0%, #5b21b6 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 3rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition: transform .25s, box-shadow .25s, background .25s;
+}
+
+</style>
+
+<style>
+  /* AC: всички икони в кредитния модал = 1.5× (27px) */
+  #creditConfirm .cc-line .ico,
+  #creditConfirm .cc-ico{
+    width: 27px !important;
+    height: 27px !important;
+    vertical-align: middle;
+  }
+</style>
+
+<style id="patch-horary-mobile-center">
+
+/* === Horary: center generating texts on mobile === */
+@media (max-width: 600px){
+  .loading-overlay{
+    display: grid;
+    place-items: center;
+  }
+  .dots-wrap{ 
+    display:flex; flex-direction:column; 
+    align-items:center; justify-content:center;
+    text-align:center;
+  }
+  .dots-wrap .dots{ text-align:center; }
+}
+
+</style>
+</head>
+<script>
+  window.__FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDykv1NMDM1oI-zw1lItXb6mzuj0wvNnHY",
+  authDomain: "matchastro-94253.firebaseapp.com",
+  projectId: "matchastro-94253",
+  storageBucket: "matchastro-94253.firebasestorage.app",
+  messagingSenderId: "1053875853232",
+  appId: "1:1053875853232:web:fb5c36d2bf552306c76875",
+  measurementId: "G-V3QL030PZ5"
+  };
+</script>
+<body>
+  <video id="bg-video" autoplay muted loop playsinline webkit-playsinline>
+    <source src="videos/horary2.mp4" type="video/mp4">
+  </video>
+  <div id="loadingOverlay" class="loading-overlay" aria-live="polite" hidden>
+    <div class="loading-box" role="status" aria-label="Зареждане">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="dots-wrap">
+  <div class="dots">ГЕНЕРИРАНЕ</div>
+  <div class="dots">МОЖЕ ДА ОТНЕМЕ 1-2 МИНУТИ</div>
+  <div class="dots">МОЛЯ, ИЗЧАКАЙТЕ</div>
+</div>
+    </div>
+  </div>
+
+  <div class="scrim" aria-hidden="true"></div>
+
+  <main class="stage">
+    <div class="panel" role="form" aria-labelledby="title">
+      <h1 id="title" class="title">ВЪВЕДИ СВОЯ ВЪПРОС</h1>
+      <div class="q-wrap">
+        <textarea id="qText" rows="3" placeholder="Опиши ясно и конкретно въпроса си..."></textarea>
+      </div>
+
+      <div class="place-label">място на задаване на въпроса</div>
+      <div class="row">
+        <div class="city-field">
+          <input id="qCity" type="text" inputmode="search" autocomplete="off" placeholder="e.g. Sofia" />
+          <!-- падащото меню е вече позиционирано под инпута -->
+          <select id="qCityResults" size="8" class="select-with-arrow" style="display:none"></select>
+        </div>
+        <button id="qSearchBtn" type="button">ТЪРСИ</button>
+      </div>
+
+      <!-- DST ред остава същият -->
+      <div class="dst-row">
+        <input type="checkbox" id="dstCheck" />
+        <label id="dstLabel" for="dstCheck">Лятно часово време</label>
+      </div>
+      <button id="askBtn" class="cta-main">
+  ЗАДАЙ ВЪПРОС&nbsp;
+  <span class="ask-credits-label"><strong class="amt">10</strong> <img src="/images/icons/zodiac_circle_money.png" class="credit-icon credit-icon--2x" alt=""></span>
+</button>
+    </div>
+
+    <!-- Сцена за разкриване (запазена за бъдеща употреба) -->
+    <section id="revealStage" class="reveal hidden" aria-live="polite">
+      <h2 id="qHeading" class="reveal-title" hidden></h2>
+      <div class="reveal-media">
+        <div id="genLabel" class="gen-label" aria-live="polite" hidden>ГЕНЕРИРАНЕ</div>
+        <video id="spinVid" class="reveal-video" src="/videos/spiningQuestion.mp4" playsinline muted></video>
+        <img id="natalImg" class="reveal-chart" alt="Natal Chart" hidden />
+      </div>
+      <div id="horaryResult"></div>
+    </section>
+
+    <!-- Финален резултат (въпрос отгоре, карта в горен ляв ъгъл, текст вдясно/под нея) -->
+    <section id="resultStage" class="result hidden" aria-live="polite">
+      <h2 id="resultQuestion" class="result-title"></h2>
+      <div class="result-wrap">
+        <img id="resultNatalImg" class="reveal-chart result-chart" alt="Natal Chart" />
+        <div id="resultText" class="result-text"></div>
+      </div>
+    </section>
+                 <span id="state" class="status"></span>
+            <div id="error" class="status error" hidden></div>
+
+  </main>
+<div id="generateLabel" hidden>ГЕНЕРИРАНЕ</div>
+
+
+
+
+  <!-- Плаващ чат бутон (същият като на began) -->
+  <button id="chatFab" class="chat-fab" aria-label="Отвори чат">
+    <img src="/images/icons/mercury.png" alt="AstroChat" />
+  </button>
+
+  <!-- Прозорец на чата (същият като на began) -->
+  <div id="chatPopup" class="chat-popup" role="dialog" aria-modal="true" aria-label="Астрологичен чат">
+    <div class="chat-head">
+      <h3>AstroChat</h3>
+      <button id="chatClose" title="Затвори">✕</button>
+    </div>
+    <div id="chatLog" class="chat-log" aria-live="polite"></div>
+    <form id="chatForm" class="chat-form">
+      <input id="chatInput" class="chat-input" type="text" placeholder="Луна в Рак в 5 дом…" />
+      <button class="chat-send">Изпрати</button>
+    </form>
+  </div>
+
+<script type="module" src="horary.js"></script>
+
+<!-- chat typing animation (Messenger-like) -->
+<style id="chat-typing-style">
+/* Scope to chat only */
+#chatPopup .msg.typing .text{
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 44px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111827;
+}
+#chatPopup .msg.typing .text .dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c2c8d0;
+  display: inline-block;
+  animation: chat-bounce 1.15s ease-in-out infinite;
+}
+#chatPopup .msg.typing .text .dot:nth-child(2){ animation-delay: .12s; }
+#chatPopup .msg.typing .text .dot:nth-child(3){ animation-delay: .24s; }
+
+@keyframes chat-bounce{
+  0%, 60%, 100% { transform: translateY(0); opacity: .8; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+</style>
+
+
+<!-- chat typing patch (safe submit handler; no cloning) -->
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function ensureCallApi(){
+    if (typeof window.callApi === 'function') return window.callApi;
+    return async function(endpoint, body){
+      const res = await fetch(`/api/${endpoint}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body || {})
+      });
+      if (!res.ok){ throw new Error(`[${endpoint}] HTTP ` + res.status); }
+      return res.json();
+    };
+  }
+  function addMsg(role, text){
+    const log = $('chatLog'); if (!log) return;
+    const roleKey = (role === 'user') ? 'user' : 'bot';
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + roleKey;
+    wrap.innerHTML = '<div class="role">' + (roleKey==='user'?'Ти':'Бот') + '</div><div class="text"></div>';
+    wrap.querySelector('.text').textContent = String(text || '');
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+    return wrap;
+  }
+  function showTyping(){
+    if ($('chatTyping')) return $('chatTyping');
+    const log = $('chatLog'); if (!log) return null;
+    const wrap = document.createElement('div');
+    wrap.id = 'chatTyping';
+    wrap.className = 'msg bot typing';
+    wrap.innerHTML = '<div class="role">Бот</div><div class="text" aria-live="polite"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+    return wrap;
+  }
+  function hideTyping(){
+    const t = $('chatTyping'); if (t && t.parentNode) t.parentNode.removeChild(t);
+  }
+  function wire(){
+    const formId = 'chatForm';
+    const form = $(formId);
+    if (!form) return;
+    const callApi = ensureCallApi();
+    // Capture-phase handler: overrides other submit listeners without altering existing code
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      const input = $('chatInput');
+      const log = $('chatLog');
+      if (!input || !log) return;
+      const msg = (input.value || '').trim();
+      if (!msg){ input.focus(); return; }
+      addMsg('user', msg);
+      input.value = '';
+      const t = showTyping();
+      try{
+        let data;
+        try { data = await callApi('chat', { message: msg }); }
+        catch { data = await callApi('ask',  { question: msg }); }
+        hideTyping();
+        addMsg('bot', data?.reply || data?.answer || data?.text || data?.message || 'Няма отговор.');
+      } catch(err){
+        hideTyping();
+        addMsg('bot', 'Грешка: ' + (err?.message || err));
+      }
+    }, true); // capture
+  }
+  if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', wire, { once:true }); }
+  else { wire(); }
+})();
+</script>
+<!-- === Chatbot greeting (non-destructive) === -->
+<script>
+(function(){
+  var GREET_TEXT = "Здравейте, аз съм вашият личен астролог. Може да ме питате всичко.";
+  function addGreeting(){
+    try{
+      var log = document.getElementById('chatLog');
+      if (!log || log.dataset.greeted === 'true') return;
+      var wrap = document.createElement('div');
+      wrap.className = 'msg bot';
+      var role = document.createElement('div');
+      role.className = 'role';
+      role.textContent = 'Бот';
+      var txt = document.createElement('div');
+      txt.className = 'text bot-greeting';
+      txt.textContent = GREET_TEXT;
+      wrap.appendChild(role); wrap.appendChild(txt);
+      log.appendChild(wrap);
+      log.dataset.greeted = 'true';
+      try { log.scrollTop = log.scrollHeight; } catch(_){}
+    }catch(_){}
+  }
+  // Wrap global toggleChat if present
+  (function wrapToggle(){
+    try{
+      var prev = window.toggleChat;
+      if (typeof prev === 'function' && !prev.__withGreeting){
+        function wrapped(open){
+          var r = prev.apply(this, arguments);
+          if (open) setTimeout(addGreeting, 0);
+          return r;
+        }
+        wrapped.__withGreeting = true;
+        window.toggleChat = wrapped;
+      }
+    }catch(_){}
+  })();
+  // Also observe the chat popup class changes and the FAB click as fallbacks
+  document.addEventListener('DOMContentLoaded', function(){
+    var fab = document.getElementById('chatFab');
+    var popup = document.getElementById('chatPopup');
+    if (fab) fab.addEventListener('click', function(){ setTimeout(addGreeting, 0); }, { passive:true });
+    if (popup && 'MutationObserver' in window){
+      var mo = new MutationObserver(function(){
+        if (popup.classList.contains('open')) setTimeout(addGreeting, 0);
+      });
+      mo.observe(popup, { attributes:true, attributeFilter:['class'] });
+    }
+    // Last resort: greet shortly after load if chat is already open
+    setTimeout(function(){
+      var popup = document.getElementById('chatPopup');
+      if (popup && popup.classList.contains('open')) addGreeting();
+    }, 800);
+  });
+})();
+</script>
+
+
+
+<script type="module" src="firebase-init.js"></script>
+<script type="module" src="astro-credits.js?v=4"></script>
+
+  
+
+
+
+  <!-- Astro Credits: confirmation modal (same style as natal.html) -->
+  <div id="creditConfirm" class="cc-scrim" hidden>
+    <div class="cc-modal" role="dialog" aria-modal="true" aria-labelledby="cc-title">
+      <h3 id="cc-title" class="cc-title">Потвърдете покупката</h3>
+      <div class="cc-body">
+        <p class="cc-line">
+          <span>Този анализ струва</span>
+          <span class="num"><span id="cc-cost">10</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита.</span>
+        </p>
+        <p class="cc-line">
+          <span>Вие имате</span>
+          <span class="num"><span id="cc-balance">0</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита.</span>
+        </p>
+        <p class="cc-line warn">
+          <span class="num"><span id="cc-cost2">10</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита ще бъдат взети от профила!</span>
+        </p>
+        <div class="cc-actions">
+          <button id="cc-cancel" class="cta muted" type="button">Откажи</button>
+          <button id="cc-confirm" class="cta primary" type="button">Потвърди</button>
+        </div>
+        <div class="cc-note">Можете да управлявате кредитите си в профила.</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="bg">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Зареждане…</title>
+  <link rel="stylesheet" href="began.css">
+  <style>
+    html,body{height:100%;margin:0}
+    .screen{min-height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:#0c1123;color:#fff}
+    .spinner{width:64px;height:64px;border-radius:50%;border:6px solid rgba(255,255,255,.2);border-top-color:#fff;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .msg{font-size:clamp(1rem,2.5vw,1.4rem);opacity:.9}
+    .sub{font-size:.95rem;opacity:.7}
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <div class="spinner" aria-hidden="true"></div>
+    <div class="msg">Изчисляваме вашата натална карта…</div>
+    <div class="sub">Моля, изчакайте няколко секунди.</div>
+  </div>
+  <script>
+(async function () {
+  try {
+    // 1) Take job from began (if missing, go back)
+    const raw = sessionStorage.getItem('astroJob');
+    if (!raw) { window.location.href = 'began.html#my-data'; return; }
+
+    let job = {}; try { job = JSON.parse(raw) || {}; } catch (_) {}
+    const body = job.body || {};
+    const endpoints = Array.isArray(job.endpoints) && job.endpoints.length
+      ? job.endpoints
+      : ['planets', 'houses', 'natal-wheel-chart'];
+
+    // 2) Run API requests in parallel
+    const results = await Promise.allSettled(
+      endpoints.map(ep =>
+        fetch('/api/' + ep, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body || {})
+        })
+          .then(r => r.ok ? r.json() : null)
+          .catch(() => null)
+      )
+    );
+
+    // 3) If we got a wheel image URL, preload it for instant swap in began.html
+    const wheelJson = (results.find(r =>
+      r.status === 'fulfilled' &&
+      r.value && (r.value.output || r.value.url || r.value.image || r.value.src)
+    ) || {}).value;
+    const wheelSrc = wheelJson && (wheelJson.output || wheelJson.url || wheelJson.image || wheelJson.src);
+    if (wheelSrc) {
+      await new Promise(res => {
+        const img = new Image();
+        img.onload = img.onerror = () => res();
+        img.src = wheelSrc;
+        try { sessionStorage.setItem('wheelSrc', wheelSrc); } catch(_) {}
+      });
+    }
+
+    // 4) Light prefetch of key assets for began.html (non-blocking)
+    ['styles.css','began.css','responsive-mobile.css','profile.css','began.js'].forEach(href => {
+      try {
+        const l = document.createElement('link');
+        l.rel = 'prefetch';
+        l.href = href;
+        document.head.appendChild(l);
+      } catch(_) {}
+    });
+  } catch (e) {
+    console.error('[loading] error', e);
+  }
+
+  // 5) Mark done and return to began.html
+  try { sessionStorage.setItem('astroDone', '1'); } catch(_) {}
+  const ret = sessionStorage.getItem('returnTo') || 'began.html#my-data';
+  window.location.href = ret;
+})();
+</script>
+</body>
+</html>

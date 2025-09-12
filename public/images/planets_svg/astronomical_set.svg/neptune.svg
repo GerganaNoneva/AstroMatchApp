@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+
+  <defs>
+    <radialGradient id="nep-grad" cx="50%" cy="50%" r="56%">
+      <stop offset="0%" stop-color="#5ea9ff"/><stop offset="100%" stop-color="#0b3d91"/>
+    </radialGradient>
+    <mask id="nep-mask"><rect width="1024" height="1024" fill="#000"/><circle cx="512" cy="512" r="388" fill="#fff"/></mask>
+    <filter id="nep-bands">
+      <feTurbulence type="fractalNoise" baseFrequency="0.01 0.12" numOctaves="2" seed="16" result="t"/>
+      <feGaussianBlur in="t" stdDeviation="1.2" result="tb"/>
+      <feBlend in="SourceGraphic" in2="tb" mode="overlay"/>
+    </filter>
+  </defs>
+  <g mask="url(#nep-mask)">
+    <circle cx="512" cy="512" r="388" fill="url(#nep-grad)" filter="url(#nep-bands)"/>
+    <!-- Dark band -->
+    <rect x="124" y="480" width="776" height="22" fill="rgba(0,0,0,.25)" opacity=".35"/>
+    <!-- Small bright storm -->
+    <ellipse cx="650" cy="520" rx="22" ry="16" fill="#b9d8ff" opacity=".8"/>
+  </g>
+
+</svg>

@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#9b8cff" />
+  <link rel="icon" type="image/gif" href="images/heartLogo.gif" />
+  <title>Прогностика</title>
+
+  <!-- Общи стилове от проекта -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="sinastry.css" />
+  <link rel="stylesheet" href="natal.css" />
+  <link rel="stylesheet" href="horary.css">
+  <link rel="stylesheet" href="responsive-mobile.css?v=20250907a" />
+
+  <style>
+    /* ====== Модал 1: профили/форма ====== */
+    #prognostikaModal { font-size: 14px; }
+    #prognostikaModal .modal-content{
+      height: 90vh;
+      max-height: 90vh;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ffd3f6 0%, #d6ccff 100%);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      padding: 16px 18px;
+    }
+    #prognostikaModal .modal-title--big{
+      margin-top: 6px; margin-bottom: 8px; font-size: 18px; text-transform: uppercase; letter-spacing: .4px;
+    }
+    #prognostikaModal .chooser{ display:flex; flex-direction:column; gap:4px; align-items:stretch; margin-bottom:6px; }
+    #prognostikaModal .profile-select-big{ width:100%; min-height:36px; padding:6px 10px; border-radius:10px; font-size:14px; }
+    #prognostikaModal .chooser-line{ display:block; text-align:center; line-height:1.1; font-weight:600; font-size:12px; }
+    #prognostikaModal .birth-form{ display:grid; grid-template-rows:auto 1fr; row-gap:8px; height:calc(90vh - 120px); max-height:calc(90vh - 120px); }
+    #prognostikaModal .form-grid{ display:grid; grid-template-columns:110px 1fr; gap:8px 12px; align-items:center; font-size:14px; overflow:auto; padding-right:2px; }
+    #prognostikaModal .lbl{ font-weight:600; text-transform:lowercase; font-size:13px; color:#4c1d95; }
+    #prognostikaModal .inp{ min-height:36px; padding:6px 10px; font-size:14px; border-radius:10px; }
+    #prognostikaModal .row-inline{ display:flex; gap:8px; align-items:center; }
+    #prognostikaModal .row-inline .chk{ font-size:12px; }
+    #prognostikaModal .city-row{ display:flex; gap:8px; align-items:center; }
+    #prognostikaModal .city-dropdown-wrap{ margin-top:2px; }
+    #prognostikaModal .city-dropdown{ width:100%; min-height:36px; padding:6px 10px; border-radius:10px; font-size:14px; }
+    #prognostikaModal .btns-row{ display:flex; gap:8px; align-items:center; justify-content:flex-end; }
+    #prognostikaModal .cta{ font-size:13px; padding:8px 12px; border-radius:12px; }
+    #prognostikaModal .cta.small{ padding:6px 10px; font-size:12px; }
+    #prognostikaModal .cta:disabled{ opacity:.55; cursor:not-allowed; filter:saturate(.5); }
+
+    /* ====== Модал 2: избор на методи/аспекти ====== */
+#methodsModal .modal-content{
+  height: 90vh;
+  max-height: 90vh;
+  background: linear-gradient(135deg, #ffd3f6 0%, #d6ccff 100%);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Две колони */
+#methodsModal .columns{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+#methodsModal .col{
+  background: rgba(255,255,255,0.45);
+  backdrop-filter: blur(4px);
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.15);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Заглавия и общ текст — центрирани */
+#methodsModal .col h3{
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: .4px;
+  color:#4c1d95;
+  text-transform: none;
+}
+
+/* Списъци */
+#methodsModal .list{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center; /* центрира чекбоксовете + текста */
+}
+
+/* Големи чекбоксове (Методи — вдясно) */
+#methodsModal .chk-big{
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center; /* центриран текст */
+  padding: 12px 14px;
+  width: 100%;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.7);
+  border: 2px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  text-transform: uppercase;
+}
+#methodsModal .chk-big:hover{
+  border-color: rgba(76,29,149,0.35);
+  box-shadow: 0 6px 16px rgba(76,29,149,0.12);
+}
+#methodsModal .chk-big input{
+  transform: scale(1.45);
+}
+
+/* Малки чекбоксове (Аспекти — вляво) */
+#methodsModal .chk-small{
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center; /* центриран текст */
+  padding: 10px 12px;
+  width: 100%;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.6);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  user-select: none;
+}
+#methodsModal .chk-small:hover{
+  border-color: rgba(76,29,149,0.25);
+  box-shadow: 0 5px 14px rgba(76,29,149,0.10);
+}
+#methodsModal .chk-small input{
+  transform: scale(1.1);
+}
+
+/* Бутонът — центриран отдолу */
+#methodsModal .methods-actions{
+  display:flex;
+  justify-content:center;
+  margin-top: auto;
+}
+#methodsModal .cta:disabled{
+  opacity:.55; cursor:not-allowed; filter:saturate(.5);
+}
+
+/* Responsive: стек на една колона при по-тесни екрани */
+@media (max-width: 780px){
+  #methodsModal .columns{ grid-template-columns: 1fr; }
+}
+</style>
+
+  
+  <style id="loader-styles">
+    /* Loader (same as horary) */
+.loading-overlay{position:fixed;inset:0;display:grid;place-items:center;z-index:2147483647;background:rgba(0,0,0,.40)}
+.loading-box{display:flex;flex-direction:column;align-items:center;gap:16px;padding:48px 56px;backdrop-filter:blur(4px);background:rgba(40,9,57,.35);box-shadow:0 12px 28px rgba(0,0,0,.35)}
+.spinner{width:144px;height:144px;border:12px solid rgba(255,255,255,.25);border-top-color:rgba(255,255,255,.9);border-radius:50%;animation:spin 1s linear infinite}
+.dots{font:600 28px/1.2 system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.35);animation:pulse 1.2s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:.7}50%{opacity:1}}
+.loading-overlay[hidden]{display:none!important}
+
+    /* Result (match natal look; image top-left) */
+    .result.hidden{display:none!important}
+    .result-title{color:#fff;margin:16px 0 8px;font-weight:900;letter-spacing:.02em}
+    
+    .result-chart{float: left;width:clamp(180px,33%,340px);max-width:100%;height:auto;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);margin:0 0 1rem 1rem}
+    
+    @media (max-width: 640px){
+      .result-chart{ float:none; display:block; width:min(100%,360px); margin:0 auto 1rem; }
+    }
+  
+    .result-wrap{
+      display: flow-root;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(43, 1, 60, 0.72);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(3px);
+      box-shadow: 0 16px 40px rgba(0,0,0,.35);
+    }
+    .result-text{
+      white-space: pre-wrap;
+      line-height: 1.6;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,.35);
+    }
+</style>
+
+
+
+<style id="gen-btn-big-icon-fix">
+  #methodsModal .methods-actions #generateAnalysis{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 56px;
+    line-height: 1.1;
+  }
+  #methodsModal #gen-cost-wrap{ display:inline-flex; align-items:center; gap: 8px; }
+</style>
+
+
+<style id="patch-prognostika-mobile-center">
+
+/* === Prognostika: center generating texts on mobile === */
+@media (max-width: 600px){
+  #loadingOverlay, .loading-overlay{
+    display: grid;
+    place-items: center;
+  }
+  .dots-wrap{ 
+    display:flex; flex-direction:column; 
+    align-items:center; justify-content:center; 
+    text-align:center;
+  }
+  .dots-wrap .dots{ text-align:center; }
+}
+
+</style>
+<style id="mobile-prog-centering">
+/* === Mobile: center GENERATING lines vertically and individually on phones === */
+@media (max-width: 640px){
+  /* Ensure the overlay uses the full viewport and centers content */
+  .loading-overlay{
+    display: grid !important;
+    place-items: center !important;
+    min-height: 100dvh;
+  }
+  .loading-box{
+    width: 100%;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+    background: rgba(40,9,57,.25); /* subtle for readability */
+  }
+  /* Stack each line and center it */
+  .dots-wrap{ display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .dots{ display: block; text-align: center; margin: 0; }
+}
+</style>
+</head>
+<body>
+  <!-- фон-видео -->
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="videos/prognostika2.mp4" type="video/mp4">
+    Вашият браузър не поддържа HTML5 видео.
+  </video>
+
+  <div id="loadingOverlay" class="loading-overlay" aria-live="polite" hidden>
+    <div class="loading-box" role="status" aria-label="Зареждане">
+      <div class="spinner" aria-hidden="true"></div>
+        <div class="dots">ГЕНЕРИРАНЕ</div>
+  <div class="dots">МОЖЕ ДА ОТНЕМЕ 2-3 МИНУТИ</div>
+  <div class="dots">МОЛЯ, ИЗЧАКАЙТЕ</div>
+    </div>
+  </div>
+
+  <!-- Финален резултат (картинка горе вляво + текст) -->
+  <section id="resultStage" class="result hidden" aria-live="polite">
+    <h2 id="resultTitle" class="result-title"></h2>
+    <div class="result-wrap">
+      <img id="resultNatalImg" class="result-chart" alt="Natal Chart" hidden />
+      <div id="resultText" class="result-text"></div>
+    </div>
+  </section>
+
+
+  <!-- МОДАЛ #1: Избор/създаване на профил -->
+  <div id="prognostikaModal" class="modal" aria-modal="true" role="dialog">
+    <div class="modal-content modal-content--natal" role="document">
+      <button class="modal-close" aria-label="Затвори" onclick="document.getElementById('prognostikaModal').classList.add('hidden')">&times;</button>
+      <h2 class="modal-title modal-title--big">Избери профил</h2>
+
+      <div class="chooser">
+        <select id="profilesSelect" class="profile-select-big" aria-label="Избор на профил">
+          <option disabled selected>зареждам…</option>
+        </select>
+        <div class="chooser-line or">или</div>
+        <div class="chooser-line create">--- създай нов ---</div>
+      </div>
+
+      <div class="birth-form">
+        <div class="form-grid">
+          <div class="lbl">име</div>
+          <input id="nm" class="inp" type="text" placeholder="Име" autocomplete="name">
+
+          <div class="lbl">дата</div>
+          <input id="dt" class="inp" type="date" inputmode="numeric">
+
+          <div class="lbl">час</div>
+          <div class="row-inline">
+            <input id="tm" class="inp" type="time" step="60" inputmode="numeric">
+            <label class="chk"><input id="dst" type="checkbox"> лятно часово време</label>
+          </div>
+
+          <div class="lbl">град</div>
+          <div class="city-row">
+            <input id="city" class="inp" type="text" placeholder="Напр. Sofia" autocomplete="address-level2">
+            <button id="citySearch" type="button" class="cta small outline">ТЪРСИ</button>
+          </div>
+
+          <div class="city-dropdown-wrap" style="grid-column: 1 / -1;">
+            <select id="cityDropdown" class="city-dropdown hidden" aria-label="Резултати от търсене на град">
+              <option disabled selected>избери град</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btns-row">
+          <button id="saveChoose" class="cta primary" disabled>ЗАПАЗИ И ИЗБЕРИ</button>
+          <button id="deleteProfile" class="cta danger" disabled>ИЗТРИЙ</button>
+          <button id="clearForm" class="cta muted" type="button">ИЗЧИСТИ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛ #2: Избор на методи и аспекти -->
+<div id="methodsModal" class="modal hidden" aria-modal="true" role="dialog">
+  <div class="modal-content modal-content--natal" role="document">
+    <button class="modal-close" aria-label="Затвори" onclick="document.getElementById('methodsModal').classList.add('hidden')">&times;</button>
+
+    <div class="columns">
+      <!-- ЛЯВА КОЛОНА: АСПЕКТИ (по-малки чекбоксове) -->
+      <section class="col col-left">
+        <h3 class="modal-subtitle">Избери видове аспекти:</h3>
+        <div class="list aspects">
+          <label class="chk-small"><input type="checkbox" id="a-major"> мажорни</label>
+          <label class="chk-small"><input type="checkbox" id="a-minor"> миньорни</label>
+          <label class="chk-small"><input type="checkbox" id="a-creative"> творчески</label>
+          <label class="chk-small"><input type="checkbox" id="a-karma"> кармични</label>
+        </div>
+      </section>
+
+      <!-- ДЯСНА КОЛОНА: МЕТОДИ (големи чекбоксове) -->
+      <section class="col col-right">
+        <h3 class="modal-title">Избери видове прогностични методи:</h3>
+        <div class="list methods">
+          <label class="chk-big"><input type="checkbox" id="m-transits"> ТРАНЗИТИ</label>
+          <label class="chk-big"><input type="checkbox" id="m-progressions"> ПРОГРЕСИИ</label>
+          <label class="chk-big"><input type="checkbox" id="m-directions"> ДИРЕКЦИИ</label>
+        </div>
+      </section>
+    </div>
+
+    <div class="methods-actions">
+      <button id="generateAnalysis" class="cta primary" disabled>ГЕНЕРИРАЙ АНАЛИЗ <span id="gen-cost-wrap" style="font-weight:700;"></span></button>
+    </div>
+  </div>
+</div>
+  </div>
+
+  <!-- Firebase и показване на модал #1 след вход -->
+  <script type="module">
+    import { handleRedirectResult, ensureSignedIn } from './firebase-init.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+    import { getFirestore, setLogLevel } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
+
+    try { setLogLevel('silent'); } catch(_) {}
+    const auth = getAuth(); getFirestore();
+
+    await handleRedirectResult();
+    await ensureSignedIn();
+
+    // Отваряме модал #1
+    document.getElementById('prognostikaModal')?.classList.remove('hidden');
+  </script>
+
+  <!-- Логика за формата/CRUD/търсене + методи/аспекти -->
+  <script type="module" src="prognostika-modal.js"></script>
+  <script type="module" src="astro-credits.js"></script>
+
+
+  <!-- Credits confirm scrim (shared by astro-credits.js) -->
+  <style>
+    /* minimal styles so it's usable if base CSS is missing */
+    #creditConfirm{position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.45);z-index:2147483600}
+    #creditConfirm[hidden]{display:none!important}
+    #creditConfirm .cc-dialog{background:#fff;border-radius:16px;max-width:520px;width:92vw;padding:16px 18px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+    #creditConfirm.cc-insufficient .cc-actions{justify-content:center}
+    #creditConfirm .cc-line{display:flex;gap:8px;align-items:center;margin:10px 0}
+    #creditConfirm .cc-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+    #creditConfirm .cc-ico{width:22px;height:22px;object-fit:contain;vertical-align:middle}
+  </style>
+ <!-- Astro Credits: confirmation modal -->
+  <div id="creditConfirm" class="cc-scrim" hidden>
+    <div class="cc-modal" role="dialog" aria-modal="true" aria-labelledby="cc-title">
+      <h3 id="cc-title" class="cc-title">Потвърдете покупката</h3>
+      <div class="cc-body">
+        <p class="cc-line">
+          <span>Този анализ струва</span>
+          <span class="num"><span id="cc-cost">15</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита.</span>
+        </p>
+        <p class="cc-line">
+          <span>Вие имате</span>
+          <span class="num"><span id="cc-balance">0</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита.</span>
+        </p>
+        <p class="cc-line warn">
+          <span class="num"><span id="cc-cost2">15</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита ще бъдат взети от профила!</span>
+        </p>
+        <div class="cc-actions">
+          <button id="cc-cancel" class="cta muted" type="button">Откажи</button>
+          <button id="cc-confirm" class="cta primary" type="button">Потвърди</button>
+        </div>
+        <div class="cc-note">Можете да управлявате кредитите си в профила.</div>
+      </div>
+    </div>
+  </div>
+<style>
+/* === Astro Credits: cost pill on analyze button === */
+.credit-pill{
+  display:inline-flex; align-items:center; gap:6px;
+  margin-left:10px; padding:4px 8px;
+  border-radius:999px; background:transparent;
+  
+  font-weight:800; color:#4c1d95;
+}
+.credit-pill .amt{ font-size:16px; line-height:1; }
+.credit-pill img{ width: 18px; height: 18px; display:inline-block; }
+
+/* === Astro Credits: pretty confirm modal === */
+.cc-scrim{
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(22, 0, 37, .45);
+  backdrop-filter:saturate(1.2) blur(2px);
+  z-index:2147482000;
+}
+.cc-scrim[hidden]{ display:none !important; }
+.cc-modal{
+  width:min(92vw, 520px);
+  border-radius:18px;
+  padding:18px 18px 14px;
+  background: linear-gradient(135deg, #ffe1f3 0%, #eadbff 100%);
+  
+  color:#1f2937;
+}
+.cc-title{
+  margin:0 0 10px; font-weight:900; letter-spacing:.02em; color:#4c1d95;
+  font-size:clamp(18px, 3vw, 22px); text-align:center;
+}
+.cc-body{ background:#fff; border-radius:14px; padding:12px 14px;  }
+.cc-line{ margin:8px 0; font-size:15px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.cc-line .num{ font-weight:900; font-size:16px; color:#111827; display:inline-flex; align-items:center; gap:6px; }
+.cc-line .ico, .cc-ico{ width:18px; height:18px; vertical-align:middle; }
+.cc-line.warn{ color:#7c3aed; font-weight:700; }
+.cc-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+.cc-actions .cta{ min-height:36px; padding:8px 12px; }
+.cc-note{ font-size:12px; opacity:.7; margin-top:6px; text-align:center; }
+
+/* Insufficient state */
+.cc-insufficient .cc-body{ background:linear-gradient(180deg,#fff1f2 0%, #ffe4e6 100%); }
+.cc-insufficient .cc-title{ color:#b91c1c; }
+</style>
+
+<style id="chat-typing-style">
+/* Scope to chat only */
+#chatPopup .msg.typing .text{
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 44px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111827;
+}
+#chatPopup .msg.typing .text .dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c2c8d0;
+  display: inline-block;
+  animation: chat-bounce 1.15s ease-in-out infinite;
+}
+#chatPopup .msg.typing .text .dot:nth-child(2){ animation-delay: .12s; }
+#chatPopup .msg.typing .text .dot:nth-child(3){ animation-delay: .24s; }
+
+@keyframes chat-bounce{
+  0%, 60%, 100% { transform: translateY(0); opacity: .8; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+#chatPopup,
+#chatFab {
+  z-index: 2147483648 !important; /* по-голямо от overlay */
+  position: fixed; /* за сигурност */
+}
+</style>
+
+
+<!-- Плаващ чат бутон -->
+<button id="chatFab" class="chat-fab" aria-label="Отвори чат">
+  <img src="/images/icons/mercury.png" alt="AstroChat" />
+</button>
+
+<!-- Прозорец на чата -->
+<div id="chatPopup" class="chat-popup" role="dialog" aria-modal="true" aria-label="Астрологичен чат">
+  <div class="chat-head">
+    <h3>AstroChat</h3>
+    <button id="chatClose" title="Затвори">✕</button>
+  </div>
+  <div id="chatLog" class="chat-log" aria-live="polite"></div>
+  <form id="chatForm" class="chat-form">
+    <input id="chatInput" class="chat-input" type="text" placeholder="Луна в Рак в 5 дом…" />
+    <button class="chat-send">Изпрати</button>
+  </form>
+</div>
+
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function wire(){
+    const fab = $('chatFab'), popup = $('chatPopup'), closeB = $('chatClose'), input = $('chatInput');
+    if (!fab || !popup || !input) return;
+    function toggle(open){
+      const willOpen = (typeof open==='boolean') ? open : !popup.classList.contains('open');
+      popup.classList[willOpen ? 'add' : 'remove']('open');
+      if (willOpen) setTimeout(()=> input.focus(), 0);
+    }
+    fab.addEventListener('click', ()=> toggle(true));
+    closeB?.addEventListener('click', ()=> toggle(false));
+  }
+  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', wire, {once:true});
+  else wire();
+})();
+</script>
+
+<!-- chat typing patch (safe submit handler; no cloning) -->
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function ensureCallApi(){
+    if (typeof window.callApi === 'function') return window.callApi;
+    return async function(endpoint, body){
+      const res = await fetch(`/api/${endpoint}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body || {})
+      });
+      if (!res.ok){ throw new Error(`[${endpoint}] HTTP ` + res.status); }
+      return res.json();
+    };
+  }
+  function addMsg(role, text){
+    const log = $('chatLog'); if (!log) return;
+    const roleKey = (role === 'user') ? 'user' : 'bot';
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + roleKey;
+    wrap.innerHTML = '<div class="role">' + (roleKey==='user'?'Ти':'Бот') + '</div><div class="text"></div>';
+    wrap.querySelector('.text').textContent = String(text || '');
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+    return wrap;
+  }
+  function showTyping(){
+    if ($('chatTyping')) return $('chatTyping');
+    const log = $('chatLog'); if (!log) return null;
+    const wrap = document.createElement('div');
+    wrap.id = 'chatTyping';
+    wrap.className = 'msg bot typing';
+    wrap.innerHTML = '<div class="role">Бот</div><div class="text" aria-live="polite"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+    return wrap;
+  }
+  function hideTyping(){
+    const t = $('chatTyping'); if (t && t.parentNode) t.parentNode.removeChild(t);
+  }
+  function wire(){
+    const formId = 'chatForm';
+    const form = $(formId);
+    if (!form) return;
+    const callApi = ensureCallApi();
+    // Capture-phase handler: overrides other submit listeners without altering existing code
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      const input = $('chatInput');
+      const log = $('chatLog');
+      if (!input || !log) return;
+      const msg = (input.value || '').trim();
+      if (!msg){ input.focus(); return; }
+      addMsg('user', msg);
+      input.value = '';
+      const t = showTyping();
+      try{
+        let data;
+        try { data = await callApi('chat', { message: msg }); }
+        catch { data = await callApi('ask',  { question: msg }); }
+        hideTyping();
+        addMsg('bot', data?.reply || data?.answer || data?.text || data?.message || 'Няма отговор.');
+      } catch(err){
+        hideTyping();
+        addMsg('bot', 'Грешка: ' + (err?.message || err));
+      }
+    }, true); // capture
+  }
+  if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', wire, { once:true }); }
+  else { wire(); }
+})();
+</script>
+<!-- === Chatbot greeting (non-destructive) === -->
+<script>
+(function(){
+  var GREET_TEXT = "Здравейте, аз съм вашият личен астролог. Може да ме питате всичко.";
+  function addGreeting(){
+    try{
+      var log = document.getElementById('chatLog');
+      if (!log || log.dataset.greeted === 'true') return;
+      var wrap = document.createElement('div');
+      wrap.className = 'msg bot';
+      var role = document.createElement('div');
+      role.className = 'role';
+      role.textContent = 'Бот';
+      var txt = document.createElement('div');
+      txt.className = 'text bot-greeting';
+      txt.textContent = GREET_TEXT;
+      wrap.appendChild(role); wrap.appendChild(txt);
+      log.appendChild(wrap);
+      log.dataset.greeted = 'true';
+      try { log.scrollTop = log.scrollHeight; } catch(_){}
+    }catch(_){}
+  }
+  // Wrap global toggleChat if present
+  (function wrapToggle(){
+    try{
+      var prev = window.toggleChat;
+      if (typeof prev === 'function' && !prev.__withGreeting){
+        function wrapped(open){
+          var r = prev.apply(this, arguments);
+          if (open) setTimeout(addGreeting, 0);
+          return r;
+        }
+        wrapped.__withGreeting = true;
+        window.toggleChat = wrapped;
+      }
+    }catch(_){}
+  })();
+  // Also observe the chat popup class changes and the FAB click as fallbacks
+  document.addEventListener('DOMContentLoaded', function(){
+    var fab = document.getElementById('chatFab');
+    var popup = document.getElementById('chatPopup');
+    if (fab) fab.addEventListener('click', function(){ setTimeout(addGreeting, 0); }, { passive:true });
+    if (popup && 'MutationObserver' in window){
+      var mo = new MutationObserver(function(){
+        if (popup.classList.contains('open')) setTimeout(addGreeting, 0);
+      });
+      mo.observe(popup, { attributes:true, attributeFilter:['class'] });
+    }
+    // Last resort: greet shortly after load if chat is already open
+    setTimeout(function(){
+      var popup = document.getElementById('chatPopup');
+      if (popup && popup.classList.contains('open')) addGreeting();
+    }, 800);
+  });
+})();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const chatFab   = document.getElementById('chatFab');
+  const chatPopup = document.getElementById('chatPopup');
+  const chatClose = document.getElementById('chatClose');
+  const chatInput = document.getElementById('chatInput');
+
+  // скрий по подразбиране (ако не е скрит)
+  chatPopup.classList.add('hidden');
+
+  function openChat(){
+    chatPopup.classList.remove('hidden');
+    chatFab.setAttribute('aria-expanded','true');
+    chatPopup.setAttribute('aria-hidden','false');
+    // фокус в полето
+    setTimeout(() => chatInput?.focus(), 0);
+  }
+  function closeChat(){
+    chatPopup.classList.add('hidden');
+    chatFab.setAttribute('aria-expanded','false');
+    chatPopup.setAttribute('aria-hidden','true');
+    chatFab.focus();
+  }
+  function toggleChat(){
+    if (chatPopup.classList.contains('hidden')) openChat();
+    else closeChat();
+  }
+
+  // клик на иконката → toggle
+  chatFab.addEventListener('click', toggleChat);
+  // X бутона → затваряне
+  chatClose.addEventListener('click', closeChat);
+  // ESC → затваряне
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeChat();
+  });
+  // клик извън прозореца → затваряне (по избор)
+  document.addEventListener('click', (e) => {
+    if (!chatPopup.classList.contains('hidden')) {
+      const clickInside = chatPopup.contains(e.target) || chatFab.contains(e.target);
+      if (!clickInside) closeChat();
+    }
+  });
+});
+</script>
+</body>
+</html>

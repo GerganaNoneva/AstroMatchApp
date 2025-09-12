@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#9b8cff" />
+  <link rel="icon" type="image/gif" href="images/heartLogo.gif" />
+  <title>Синастрия</title>
+
+  <!-- Base styles -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="natal.css" />
+
+    <link rel="stylesheet" href="responsive-mobile.css?v=20250907a" />
+<style>
+    /* ===== Синастрия: двоен модала ===== */
+    /* Контейнерът на модала е 90vh и центриран вертикално */
+    #synastryModal { font-size: 14px; position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; height: 90vh; padding-top:0; }
+    #synastryModal .modal-content {
+      width: min(96vw, 1200px);
+      max-height: 100%;
+      overflow: hidden;
+      margin: 0 auto;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #ffd3f6 0%, #d6ccff 100%);
+      padding: 14px 16px;
+    }
+    .synastry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .syn-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      /* Розово-лилав фон на формите */
+      background: linear-gradient(180deg, #ffe1f3 0%, #eadbff 100%);
+      border-radius: 16px;
+      padding: 12px;
+      height: 90vh;                 /* фиксирана височина на формите */
+      overflow: hidden;             /* скрол само във вътрешния скролер */
+      
+    }
+    .syn-title {
+      margin: 2px 0 8px;
+      font-weight: 900;
+      font-size: 16px;
+      letter-spacing: .06em;
+      color: #4c1d95;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .syn-scroller {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;               /* вътрешен скрол */
+      padding-right: 4px;
+    }
+
+    .syn-card .chooser{ display:flex; flex-direction:column; gap:2px; align-items:stretch; margin-bottom:4px; }
+    .syn-card .profile-select-big{ width:100%; min-height:36px; padding:6px 10px; border-radius:10px; font-size:14px; }
+    .syn-card .chooser-line{ display:block; text-align:center; line-height:1.1; font-weight:600; font-size:12px; color:#4c1d95; }
+    .syn-card .form-grid{ display:grid; grid-template-columns:110px 1fr; column-gap:12px; row-gap:0; }
+    .syn-card .lbl{ font-weight:600; font-size:13px; text-transform:lowercase; margin:0; line-height:1; }
+    .syn-card .inp{ min-height:36px; padding:6px 10px; font-size:14px; border-radius:10px; margin:0; line-height:1; }
+    .syn-card .row-inline{ display:flex; gap:8px; align-items:center; }
+    .syn-card .city-dropdown{ min-height:36px; padding:6px 10px; border-radius:10px; font-size:14px; }
+    .syn-card .btns-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .syn-card .cta{ font-size:13px; padding:8px 12px; }
+    .syn-card .cta:disabled{ opacity:.6; filter:saturate(.5); cursor:not-allowed; }
+
+    /* ПРОМЕНИ — позициониран отдолу по средата и над овърлея */
+    .edit-bottom {
+      position: absolute;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      z-index: 20; /* над овърлея */
+      
+    }
+    .cta.success{
+      background: #10b981; /* зелено */
+      color: #fff;
+      border: none;
+    }
+    .cta.success:hover{ filter: brightness(.95); }
+
+    /* Овърлей за избрано */
+    .chosen-veil{
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,.55);
+      backdrop-filter: blur(1px) saturate(1.1);
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .chosen-veil img{ width: 140px; height: auto; display: block; }
+    .chosen-veil.hidden{ display: none; }
+
+    /* Респонсив */
+    @media (max-width: 980px){
+      .synastry-grid{ grid-template-columns: 1fr; }
+      .syn-card{ height: auto; max-height: none; }
+    }
+
+    /* Фон-видео */
+    #bg-video{ position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+
+    /* Футър с бутона в най-долния край на екрана */
+    .analyze-footer {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      display: flex; justify-content: center;
+      z-index: 50;
+      pointer-events: none; /* само бутонът да приема кликове */
+     padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+
+    .analyze-footer .cta {
+      pointer-events: auto;
+    }
+    .cta.mega:disabled{ opacity:.45; filter: grayscale(100%); cursor:not-allowed;  }
+  
+    /* === Ask GPT-5 mini card === */
+    .askgpt-card{
+      position: fixed;
+      right: 12px;
+      bottom: 74px; /* sit above bottom footer */
+      width: min(92vw, 360px);
+      background: #fff;
+      border-radius: 14px;
+      
+      padding: 12px 14px;
+      z-index: 60;
+    }
+    .askgpt-card h3{ margin: 0 0 6px; font-size: 15px; color:#4c1d95; }
+    .askgpt-card .muted{ font-size:12px; opacity:.8; margin:0 0 8px; }
+    .askgpt-card .row{ display:flex; gap:8px; align-items:center; }
+    .askgpt-card .status{ font-size:12px; opacity:.8; }
+    .askgpt-out{
+      margin-top:8px;
+      padding:8px;
+      background: linear-gradient(180deg,#ffe1f3 0%, #eadbff 100%);
+      border-radius:10px;
+      min-height: 20px;
+      font-size:14px;
+      color:#1f2937;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 2;
+      background: transparent;
+    }
+    .loading-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      padding: 48px 56px;
+      border-radius: 16px;
+      backdrop-filter: blur(4px);
+    }
+    .spinner {
+      width: 144px;
+      height: 144px;
+      border: 12px solid rgba(255,255,255,0.35);
+      border-top-color: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .dots {
+      font: 600 28px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100% { opacity: .7 } 50% { opacity: 1 } }
+      .loading-overlay[hidden]{ display: none !important; }
+  
+
+    /* === Резултат: 2 карти отгоре една до друга, текстът отдолу в поле === */
+.result-wrap{
+  display:grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:16px; align-items:start;
+}
+.result-chart{
+  width:100%; max-width:520px; aspect-ratio: 1/1; object-fit:contain;
+  border-radius:14px; background:#fff; 
+}
+.result-text{
+  grid-column: 1 / -1; /* текстът да заема ширината под двете карти */
+  background: rgba(40, 9, 57, 0.4);
+  padding:16px; border-radius:16px; color:#1f2937; white-space:pre-wrap;
+}
+
+/* Mobile: картите една под друга */
+@media (max-width: 860px){
+  .result-wrap{ grid-template-columns: 1fr; }
+}
+
+
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 2;
+      background: transparent;
+    }
+    .loading-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      padding: 48px 56px;
+      border-radius: 16px;
+      backdrop-filter: blur(4px);
+    }
+    .spinner {
+      width: 144px;
+      height: 144px;
+      border: 12px solid rgba(255,255,255,0.35);
+      border-top-color: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .dots {
+      font: 600 28px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100% { opacity: .7 } 50% { opacity: 1 } }
+      .loading-overlay[hidden]{ display: none !important; }
+  
+
+    /* === Result text area — dark purple like horary === */
+    .result-title{
+      margin: 0 0 12px;
+      font-weight: 900;
+      font-size: clamp(18px, 3.2vw, 26px);
+      letter-spacing: .02em;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,.35);
+    }
+    .result {
+      padding: 16px;
+    }
+    .result-wrap{
+  width:min(92vw, 1100px);
+  position: relative;
+  background: rgba(40, 9, 57, 0.4);
+  color:#fff;
+  border-radius: 18px;
+  
+  padding:1rem 1.25rem 1.25rem 1.25rem;
+    }
+    .result-text{
+      grid-column: 1 / -1;
+      background: rgba(40, 9, 57, 0.4);
+      color: #fff;
+      padding: 18px;
+      border-radius: 16px;
+      white-space: pre-wrap;
+      
+    }
+    @media (max-width: 860px){
+      .result-wrap{ grid-template-columns: 1fr; }
+    }
+</style>
+
+<style>
+/* === Added: tightly stacked generating lines === */
+.dots-wrap{ display:flex; flex-direction:column; align-items:center; gap:0; }
+.dots-wrap .dots{ line-height:1; margin:0; }
+</style>
+
+<style>/* AC: hide badge on saveChoose p1 */
+#saveChoose-p1 .ac-badge { display: none !important; }
+</style>
+
+<style>/* AC: bigger icon on analyzeBtn */
+#analyzeBtn .ac-badge img { width: 36px !important; height: 36px !important; }
+</style>
+
+<style>
+  /* AC: enlarge analyze button text and credit icon */
+  #analyzeBtn { font-size: 1.5em !important; }
+  /* Actual coin icon inside the button */
+  #analyzeBtn img[alt="Astro кредити"] { width: 54px !important; height: 54px !important; vertical-align: middle; }
+</style>
+
+<style>/* AC: analyze footer flush bottom */
+.analyze-footer { padding-bottom: env(safe-area-inset-bottom) !important; }
+@supports not (padding-bottom: env(safe-area-inset-bottom)) {
+  .analyze-footer { padding-bottom: 0 !important; }
+}
+.analyze-footer .cta { margin-bottom: 0 !important; }
+</style>
+
+<style>/* AC: chat above analyze footer */
+/* Дръж чата над футъра и го повдигни малко, за да не се застъпват */
+.analyze-footer{ z-index: 99990 !important; }
+#chatPopup{ z-index: 100005 !important; }
+#chatFab{ z-index: 100006 !important; }
+@media (max-width: 1024px){
+  #chatFab{ bottom: calc(env(safe-area-inset-bottom) + 76px) !important; }
+  .chat-popup{ bottom: calc(env(safe-area-inset-bottom) + 96px) !important; }
+}
+</style>
+
+<style>/* CHAT: ensure above footer & offset */
+.analyze-footer{ z-index: 99990 !important; pointer-events: none; }
+.analyze-footer .cta{ pointer-events: auto; }
+#chatPopup{ z-index: 100010 !important; }
+#chatFab{ z-index: 100011 !important; pointer-events: auto; }
+/* Lift chat controls above glued footer */
+@media (max-width: 1024px){
+  #chatFab{ bottom: calc(env(safe-area-inset-bottom) + 88px) !important; }
+  .chat-popup{ bottom: calc(env(safe-area-inset-bottom) + 108px) !important; }
+}
+</style>
+
+<style>/* CHAT: pinned & top-most */
+#chatFab, #chatPopup{ position: fixed; }
+#chatFab{ z-index: 2147483000 !important; pointer-events: auto !important; }
+#chatPopup{ z-index: 2147482999 !important; }
+</style>
+
+<style>
+/* === Astro Credits: cost pill on analyze button === */
+.credit-pill{
+  display:inline-flex; align-items:center; gap:6px;
+  margin-left:10px; padding:4px 8px;
+  border-radius:999px; background:transparent;
+  
+  font-weight:800; color:#4c1d95;
+}
+.credit-pill .amt{ font-size:16px; line-height:1; }
+.credit-pill img{ width: 18px; height: 18px; display:inline-block; }
+
+/* === Astro Credits: pretty confirm modal === */
+.cc-scrim{
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(22, 0, 37, .45);
+  backdrop-filter:saturate(1.2) blur(2px);
+  z-index:2147482000;
+}
+.cc-scrim[hidden]{ display:none !important; }
+.cc-modal{
+  width:min(92vw, 520px);
+  border-radius:18px;
+  padding:18px 18px 14px;
+  background: linear-gradient(135deg, #ffe1f3 0%, #eadbff 100%);
+  
+  color:#1f2937;
+}
+.cc-title{
+  margin:0 0 10px; font-weight:900; letter-spacing:.02em; color:#4c1d95;
+  font-size:clamp(18px, 3vw, 22px); text-align:center;
+}
+.cc-body{ background:#fff; border-radius:14px; padding:12px 14px;  }
+.cc-line{ margin:8px 0; font-size:15px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.cc-line .num{ font-weight:900; font-size:16px; color:#111827; display:inline-flex; align-items:center; gap:6px; }
+.cc-line .ico, .cc-ico{ width:18px; height:18px; vertical-align:middle; }
+.cc-line.warn{ color:#7c3aed; font-weight:700; }
+.cc-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+.cc-actions .cta{ min-height:36px; padding:8px 12px; }
+.cc-note{ font-size:12px; opacity:.7; margin-top:6px; text-align:center; }
+
+/* Insufficient state */
+.cc-insufficient .cc-body{ background:linear-gradient(180deg,#fff1f2 0%, #ffe4e6 100%); }
+.cc-insufficient .cc-title{ color:#b91c1c; }
+</style>
+
+
+<style>
+/* === AC overrides (2025-09-10) === */
+/* 1) Analyze button: credit amount white & 2x larger */
+.analyze-footer .credit-pill .amt { 
+  color: #fff !important; 
+  font-size: 32px !important; 
+  line-height: 1; 
+}
+
+/* 2) Confirm modal: make the credits icon 2x larger in the warning line */
+.cc-line.warn .cc-ico {
+  width: 36px !important;
+  height: 36px !important;
+}
+</style>
+
+
+<style id="patch-synastry-mobile">
+
+/* === Synastry mobile tweaks === */
+@media (max-width: 600px){
+  .analyze-footer .cta.mega{ 
+    font-size: 14px;          /* smaller to fit one row */
+    padding: 10px 14px;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  /* Center the generating texts */
+  #loadingOverlay, .loading-overlay{
+    display: grid;
+    place-items: center;
+  }
+  .dots-wrap{ 
+    display: flex; flex-direction: column; 
+    align-items: center; justify-content: center; 
+    text-align: center;
+  }
+  .dots-wrap .dots{ text-align: center; }
+}
+
+</style>
+</head>
+<body>
+  <!-- фон-видео -->
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="videos/sinastry2.mp4" type="video/mp4">
+    Вашият браузър не поддържа HTML5 видео.
+  </video>
+
+  <!-- ДВОЕН МОДАЛ -->
+  <div id="synastryModal" class="modal hidden" aria-modal="true" role="dialog">
+    <div class="modal-content modal-content--natal" role="document">
+      <button class="modal-close" aria-label="Затвори">&times;</button>
+
+      <div class="synastry-grid">
+
+        <!-- Партньор 1 -->
+        <section id="p1" class="syn-card" aria-labelledby="p1-title">
+          <h2 id="p1-title" class="syn-title">Партньор 1</h2>
+          <div class="syn-scroller">
+            <div class="chooser">
+              <select id="profilesSelect-p1" class="profile-select-big">
+                <option disabled selected>зареждам…</option>
+              </select>
+              <span class="chooser-line">или</span>
+              <span class="chooser-line">--- създай нов ---</span>
+            </div>
+
+            <div class="birth-form">
+              <div class="form-grid">
+                <div class="lbl">име</div>
+                <input id="nm-p1" class="inp" type="text" placeholder="Име">
+
+                <div class="lbl">дата</div>
+                <input id="dt-p1" class="inp" type="date">
+
+                <div class="lbl">час</div>
+                <div class="row-inline">
+                  <input id="tm-p1" class="inp" type="time" step="60">
+                  <label class="chk"><input id="dst-p1" type="checkbox"> лятно часово време</label>
+                </div>
+
+                <div class="lbl">град</div>
+                <div class="city-row">
+                  <input id="city-p1" class="inp" type="text" placeholder="Напр. Sofia">
+                  <button id="citySearch-p1" type="button" class="cta small outline">ТЪРСИ</button>
+                </div>
+
+                <div class="city-dropdown-wrap" style="grid-column: 1 / -1;">
+                  <select id="cityDropdown-p1" class="city-dropdown hidden">
+                    <option disabled selected>избери град</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="btns-row">
+                <button id="saveChoose-p1" class="cta primary" disabled>ЗАПАЗИ И ИЗБЕРИ</button>
+                <button id="editMode-p1" class="cta success" style="display:none;">ПРОМЕНИ</button>
+                <button id="deleteProfile-p1" class="cta danger" disabled>ИЗТРИЙ</button>
+                <button id="clearForm-p1" class="cta muted" type="button">ИЗЧИСТИ</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Партньор 2 -->
+        <section id="p2" class="syn-card" aria-labelledby="p2-title">
+          <h2 id="p2-title" class="syn-title">Партньор 2</h2>
+          <div class="syn-scroller">
+            <div class="chooser">
+              <select id="profilesSelect-p2" class="profile-select-big">
+                <option disabled selected>зареждам…</option>
+              </select>
+              <span class="chooser-line">или</span>
+              <span class="chooser-line">--- създай нов ---</span>
+            </div>
+
+            <div class="birth-form">
+              <div class="form-grid">
+                <div class="lbl">име</div>
+                <input id="nm-p2" class="inp" type="text" placeholder="Име">
+
+                <div class="lbl">дата</div>
+                <input id="dt-p2" class="inp" type="date">
+
+                <div class="lbl">час</div>
+                <div class="row-inline">
+                  <input id="tm-p2" class="inp" type="time" step="60">
+                  <label class="chk"><input id="dst-p2" type="checkbox"> лятно часово време</label>
+                </div>
+
+                <div class="lbl">град</div>
+                <div class="city-row">
+                  <input id="city-p2" class="inp" type="text" placeholder="Напр. Varna">
+                  <button id="citySearch-p2" type="button" class="cta small outline">ТЪРСИ</button>
+                </div>
+
+                <div class="city-dropdown-wrap" style="grid-column: 1 / -1;">
+                  <select id="cityDropdown-p2" class="city-dropdown hidden">
+                    <option disabled selected>избери град</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="btns-row">
+                <button id="saveChoose-p2" class="cta primary" disabled>ЗАПАЗИ И ИЗБЕРИ</button>
+                <button id="editMode-p2" class="cta success" style="display:none;">ПРОМЕНИ</button>
+                <button id="deleteProfile-p2" class="cta danger" disabled>ИЗТРИЙ</button>
+                <button id="clearForm-p2" class="cta muted" type="button">ИЗЧИСТИ</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Фиксиран футър с бутона най-отдолу -->
+  <div class="analyze-footer">
+    <button id="analyzeBtn" class="cta mega">ГЕНЕРИРАЙ АНАЛИЗ<span class="credit-pill"><span class="amt" id="analyzeCost">15</span><img src="/images/icons/zodiac_circle_money.png" alt="Astro кредити" /></span></button>
+  </div>
+
+  <script type="module">
+    import { handleRedirectResult, ensureSignedIn } from './firebase-init.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+    import { setLogLevel } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
+    try { setLogLevel('silent'); } catch(_) {}
+    await handleRedirectResult();
+    await ensureSignedIn()
+
+
+    document.getElementById('synastryModal')?.classList.remove('hidden');
+  </script>
+  <script type="module" src="synastry-modal.js"></script>
+
+<script>
+/* Bootstrap to collect both partners and trigger synastry once both are ready.
+ * Your app can either dispatch custom events:
+ *   window.dispatchEvent(new CustomEvent('partner1:saved', { detail: p1 }));
+ *   window.dispatchEvent(new CustomEvent('partner2:saved', { detail: p2 }));
+ * OR call window.setPartnersForSynastry(p1, p2).
+ */
+(function(){
+  let __p1 = null, __p2 = null;
+
+  function maybeGo(){
+    if (__p1 && __p2 && typeof window.processSynastry === 'function'){
+      window.dispatchEvent(new CustomEvent('synastry:partners-ready', { detail: { p1: __p1, p2: __p2 }}));
+    }
+  }
+
+  window.addEventListener('partner1:saved', (ev) => { __p1 = ev.detail || null; maybeGo(); });
+  window.addEventListener('partner2:saved', (ev) => { __p2 = ev.detail || null; maybeGo(); });
+
+  window.setPartnersForSynastry = function(p1, p2){
+    __p1 = p1; __p2 = p2; maybeGo();
+  };
+})();
+ 
+/* Премества .analyze-footer вътре в #synastryModal .modal-content на мобилно
+   и го връща на мястото му при по-широк екран. */
+(function(){
+  const mq = window.matchMedia('(max-width: 980px)');
+  const footer = document.querySelector('.analyze-footer');
+  const modalContent = document.querySelector('#synastryModal .modal-content');
+  if (!footer || !modalContent) return;
+
+  // placeholder, за да върнем футъра обратно при десктоп
+  const placeholder = document.createComment('analyze-footer-home');
+  footer.parentNode.insertBefore(placeholder, footer.nextSibling);
+
+  function moveFooter(){
+    if (mq.matches){
+      // мобилно: под формите (след .synastry-grid)
+      const grid = modalContent.querySelector('.synastry-grid');
+      if (grid && footer.parentNode !== modalContent){
+        modalContent.insertBefore(footer, grid.nextSibling);
+      }
+    } else {
+      // десктоп: върни футъра там, където беше
+      if (placeholder.parentNode && footer.parentNode !== placeholder.parentNode){
+        placeholder.parentNode.insertBefore(footer, placeholder);
+      }
+    }
+  }
+
+  mq.addEventListener('change', moveFooter);
+  window.addEventListener('orientationchange', moveFooter);
+  moveFooter();
+})();
+
+
+</script>
+
+
+  <!-- Loading overlay (като в natal.html) -->
+  <div id="loadingOverlay" class="loading-overlay" aria-live="polite" hidden>
+    <div class="loading-box" role="status" aria-label="Зареждане">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="dots-wrap">
+  <div class="dots">ГЕНЕРИРАНЕ</div>
+  <div class="dots">МОЖЕ ДА ОТНЕМЕ 2-3 МИНУТИ</div>
+  <div class="dots">МОЛЯ, ИЗЧАКАЙТЕ</div>
+</div>
+    </div>
+  </div>
+
+  <!-- Резултат: заглавие + две карти + текст, със същия стил като в natal.html -->
+  <section id="resultStage" class="result hidden" aria-live="polite">
+    <h2 id="resultTitle" class="result-title"></h2>
+    <div class="result-wrap">
+      <img id="resultSynImg1" class="reveal-chart result-chart" alt="Natal Chart — Партньор 1" hidden />
+      <img id="resultSynImg2" class="reveal-chart result-chart" alt="Natal Chart — Партньор 2" hidden />
+      <div id="resultText" class="result-text"></div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- AC cleanup for saveChoose-p1 -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){ 
+  var btn = document.getElementById('saveChoose-p1');
+  if (!btn) return;
+  // Remove any injected credit badge
+  var badge = btn.querySelector('.ac-badge');
+  if (badge) badge.remove();
+  // Prevent AstroCredits hook from intercepting clicks (capture-phase flag)
+  btn.addEventListener('click', function(evt){
+    btn.dataset.acOk = '1';
+  }, true);
+});
+</script>
+
+
+<!-- CHAT: robust click handler -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){ 
+  try{
+    var fab = document.getElementById('chatFab');
+    var popup = document.getElementById('chatPopup');
+
+
+    if (!fab) return;
+    fab.style.pointerEvents = 'auto';
+    fab.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      try{ 
+        if (typeof window.toggleChat === 'function') { window.toggleChat(); }
+        else if (popup) { popup.classList.toggle('open'); }
+      }catch(_){
+        /* Fallback: toggle class directly */
+        if (popup) popup.classList.toggle('open');
+      }
+    }, true);
+  }catch(_){}
+});
+</script>
+
+<!-- === CHATBOT (moved to end) === -->
+<!-- === CHATBOT: toggle open/close on icon click (guarded) === -->
+
+  <!-- Плаващ чат бутон (същият като на began) -->
+  <button id="chatFab" class="chat-fab" aria-label="Отвори чат">
+    <img src="/images/icons/mercury.png" alt="AstroChat" />
+  </button>
+
+  <!-- Прозорец на чата (същият като на began) -->
+  <div id="chatPopup" class="chat-popup" role="dialog" aria-modal="true" aria-label="Астрологичен чат">
+    <div class="chat-head">
+      <h3>AstroChat</h3>
+      <button id="chatClose" title="Затвори">✕</button>
+    </div>
+    <div id="chatLog" class="chat-log" aria-live="polite"></div>
+    <form id="chatForm" class="chat-form">
+      <input id="chatInput" class="chat-input" type="text" placeholder="Луна в Рак в 5 дом…" />
+      <button class="chat-send">Изпрати</button>
+    </form>
+  </div>
+
+\
+
+<!-- chat typing animation (Messenger-like) -->
+<style id="chat-typing-style">
+/* Scope to chat only */
+#chatPopup .msg.typing .text{
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 44px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111827;
+}
+#chatPopup .msg.typing .text .dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c2c8d0;
+  display: inline-block;
+  animation: chat-bounce 1.15s ease-in-out infinite;
+}
+#chatPopup .msg.typing .text .dot:nth-child(2){ animation-delay: .12s; }
+#chatPopup .msg.typing .text .dot:nth-child(3){ animation-delay: .24s; }
+
+/* === Chat widget (same as began) === */
+
+.chat-popup {
+  position: fixed;
+  right: 20px;
+  bottom: 84px; /* над бутона */
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  height: 480px;
+  max-height: calc(100vh - 120px);
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  
+  z-index: 99999;
+  display: none;
+  flex-direction: column;
+}
+.chat-popup.open { display: flex; }
+.chat-head{ background: linear-gradient(135deg,#6c5ce7 0%, #9b8cff 100%); color:#fff; padding:12px 12px; display:flex; align-items:center; gap:10px; }
+.chat-head h3{ font:600 13px/1.2 system-ui, Segoe UI, Roboto, Arial; margin:0; flex:1; letter-spacing:.2px; }
+.chat-head button{ border:0; background:rgba(255,255,255,.18); color:#fff; width:28px; height:28px; border-radius:8px; cursor:pointer; }
+.chat-log{ flex:1; padding:12px 12px 14px; overflow:auto; background: linear-gradient(180deg,#f8f6ff 0%, #f3f0ff 100%); }
+.msg{ margin:8px 0; display:flex; gap:8px; align-items:flex-end; }
+.msg .role{ font-size:10px; color:#888; margin-bottom:3px; }
+.msg .text{ max-width:80%; white-space:pre-wrap; font:13px/1.45 system-ui, Segoe UI, Roboto, Arial; background:#fff; border:1px solid #eee; border-radius:14px; padding:8px 10px;  }
+.chat-form{ display:flex; gap:8px; padding:10px; border-top:1px solid #eee; background:#fff; }
+.chat-input{ flex:1; padding:10px; border:1px solid #ddd; border-radius:10px; font:14px/1.2 system-ui, Segoe UI, Roboto, Arial; }
+.chat-send{ padding:10px 14px; border-radius:10px; border:0; background:#111; color:#fff; cursor:pointer; font-size:13px; }
+@media (max-width: 480px){
+  .chat-popup{ right:12px; bottom:80px; width:calc(100vw - 24px); height:60vh; }
+}
+.chat-fab{
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  z-index: 100000; /* по-висок от всичко друго */
+  padding: 0;
+  background: linear-gradient(135deg, #ffb37a 0%, #ff5ca8 100%);
+  
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.chat-fab img{ width:100%; height:100%; border-radius:50%; display:block; }
+.chat-fab:hover{ transform: translateY(-2px);  }
+.msg.user{ justify-content:flex-end; }
+.msg.user .text{ background: linear-gradient(135deg,#6c5ce7 0%, #9b8cff 100%); color:#fff; border: none;  border-bottom-right-radius:6px; border-top-left-radius:16px; border-top-right-radius:16px; border-bottom-left-radius:16px; }
+.msg.bot .text{ background:#fff; color:#1b1630; border:1px solid #ece7ff; border-bottom-left-radius:6px; border-top-right-radius:16px; }
+
+
+@keyframes chat-bounce{
+  0%, 60%, 100% { transform: translateY(0); opacity: .8; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+</style>
+
+
+<!-- chat typing patch (safe submit handler; no cloning) -->
+
+<!-- end CHATBOT -->
+
+<!-- CHAT SCRIPT (moved) -->
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function ensureCallApi(){
+    if (typeof window.callApi === 'function') return window.callApi;
+    return async function(endpoint, body){
+      const res = await fetch(`/api/${endpoint}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body || {})
+      });
+      if (!res.ok){ throw new Error(`[${endpoint}] HTTP ` + res.status); }
+      return res.json();
+    };
+  }
+  function addMsg(role, text){
+    const log = $('chatLog'); if (!log) return;
+    const roleKey = (role === 'user') ? 'user' : 'bot';
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + roleKey;
+    wrap.innerHTML = '<div class="role">' + (roleKey==='user'?'Ти':'Бот') + '</div><div class="text"></div>';
+    wrap.querySelector('.text').textContent = String(text || '');
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+    return wrap;
+  }
+  function showTyping(){
+    if ($('chatTyping')) return $('chatTyping');
+    const log = $('chatLog'); if (!log) return null;
+    const wrap = document.createElement('div');
+    wrap.id = 'chatTyping';
+    wrap.className = 'msg bot typing';
+    wrap.innerHTML = '<div class="role">Бот</div><div class="text" aria-live="polite"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+    return wrap;
+  }
+  function hideTyping(){
+    const t = $('chatTyping'); if (t && t.parentNode) t.parentNode.removeChild(t);
+  }
+  function wire(){
+    const formId = 'chatForm';
+    const form = $(formId);
+    if (!form) return;
+    const callApi = ensureCallApi();
+    // Capture-phase handler: overrides other submit listeners without altering existing code
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      const input = $('chatInput');
+      const log = $('chatLog');
+      if (!input || !log) return;
+      const msg = (input.value || '').trim();
+      if (!msg){ input.focus(); return; }
+      addMsg('user', msg);
+      input.value = '';
+      const t = showTyping();
+      try{
+        let data;
+        try { data = await callApi('chat', { message: msg }); }
+        catch { data = await callApi('ask',  { question: msg }); }
+        hideTyping();
+        addMsg('bot', data?.reply || data?.answer || data?.text || data?.message || 'Няма отговор.');
+      } catch(err){
+        hideTyping();
+        addMsg('bot', 'Грешка: ' + (err?.message || err));
+      }
+    }, true); // capture
+  }
+  if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', wire, { once:true }); }
+  else { wire(); }
+})();
+</script>
+<!-- === Chatbot greeting (non-destructive) === -->
+<script>
+(function(){
+  var GREET_TEXT = "Здравейте, аз съм вашият личен астролог. Може да ме питате всичко.";
+  function addGreeting(){
+    try{
+      var log = document.getElementById('chatLog');
+      if (!log || log.dataset.greeted === 'true') return;
+      var wrap = document.createElement('div');
+      wrap.className = 'msg bot';
+      var role = document.createElement('div');
+      role.className = 'role';
+      role.textContent = 'Бот';
+      var txt = document.createElement('div');
+      txt.className = 'text bot-greeting';
+      txt.textContent = GREET_TEXT;
+      wrap.appendChild(role); wrap.appendChild(txt);
+      log.appendChild(wrap);
+      log.dataset.greeted = 'true';
+      try { log.scrollTop = log.scrollHeight; } catch(_){}
+    }catch(_){}
+  }
+  // Wrap global toggleChat if present
+  (function wrapToggle(){
+    try{
+      var prev = window.toggleChat;
+      if (typeof prev === 'function' && !prev.__withGreeting){
+        function wrapped(open){
+          var r = prev.apply(this, arguments);
+          if (open) setTimeout(addGreeting, 0);
+          return r;
+        }
+        wrapped.__withGreeting = true;
+        window.toggleChat = wrapped;
+      }
+    }catch(_){}
+  })();
+  // Also observe the chat popup class changes and the FAB click as fallbacks
+  document.addEventListener('DOMContentLoaded', function(){
+    var fab = document.getElementById('chatFab');
+    var popup = document.getElementById('chatPopup');
+    if (fab) fab.addEventListener('click', function(){ setTimeout(addGreeting, 0); }, { passive:true });
+    if (popup && 'MutationObserver' in window){
+      var mo = new MutationObserver(function(){
+        if (popup.classList.contains('open')) setTimeout(addGreeting, 0);
+      });
+      mo.observe(popup, { attributes:true, attributeFilter:['class'] });
+    }
+    // Last resort: greet shortly after load if chat is already open
+    setTimeout(function(){
+      var popup = document.getElementById('chatPopup');
+      if (popup && popup.classList.contains('open')) addGreeting();
+    }, 800);
+  });
+})();
+</script>
+
+
+
+
+
+  <!-- Astro Credits: confirmation modal -->
+  <div id="creditConfirm" class="cc-scrim" hidden>
+    <div class="cc-modal" role="dialog" aria-modal="true" aria-labelledby="cc-title">
+      <h3 id="cc-title" class="cc-title">Потвърдете покупката</h3>
+      <div class="cc-body">
+        <p class="cc-line">
+          <span>Този анализ струва</span>
+          <span class="num"><span id="cc-cost">15</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита.</span>
+        </p>
+        <p class="cc-line">
+          <span>Вие имате</span>
+          <span class="num"><span id="cc-balance">0</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита.</span>
+        </p>
+        <p class="cc-line warn">
+          <span class="num"><span id="cc-cost2">15</span> <img src="/images/icons/zodiac_circle_money.png" class="cc-ico" alt=""></span>
+          <span>Astro кредита ще бъдат взети от профила!</span>
+        </p>
+        <div class="cc-actions">
+          <button id="cc-cancel" class="cta muted" type="button">Откажи</button>
+          <button id="cc-confirm" class="cta primary" type="button">Потвърди</button>
+        </div>
+        <div class="cc-note">Можете да управлявате кредитите си в профила.</div>
+      </div>
+    </div>
+  </div>
+
+
+<style>
+  /* AC: всички кредитни икони = 1.5× (27px) на синaстрия модала */
+  #creditConfirm .cc-line .ico,
+  #creditConfirm .cc-ico{
+    width: 27px !important;
+    height: 27px !important;
+    vertical-align: middle;
+  }
+</style>
+
+
+<script>
+// Anti-hook for astro-credits: allow analyze button click to reach app logic
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    var analyze = document.getElementById('analyzeBtn');
+    if (!analyze) return;
+    analyze.addEventListener('click', function(){
+      analyze.dataset.acOk = '1';
+    }, true); // capture
+  });
+})();
+
+// Define getRequestedCost if missing; read cost from #cc-cost safely.
+(function(){
+  if (typeof window.getRequestedCost !== 'function'){
+    window.getRequestedCost = function(){
+      var el = document.getElementById('cc-cost');
+      var txt = el ? (el.textContent || el.innerText || '') : '';
+      var n = parseInt(txt, 10);
+      if (!isFinite(n)) n = 15; // fallback
+      return n;
+    };
+  }
+})();
+</script>
+</body>
+
+<!-- === Chatbot greeting (non-destructive) === -->
+
+<script>
+(function(){
+  function toggleChat(open){
+    var popup = document.getElementById('chatPopup');
+    var fab   = document.getElementById('chatFab');
+    if (!popup) return false;
+
+    var isOpen   = popup.classList.contains('open');
+    var wantOpen = (typeof open === 'boolean') ? open : !isOpen;
+
+    popup.classList[wantOpen ? 'add' : 'remove']('open');
+
+    try{
+      if (wantOpen){
+        popup.removeAttribute('aria-hidden');
+        fab && fab.setAttribute('aria-label','Затвори чата');
+        var input = document.getElementById('chatInput');
+        if (input) { input.focus({ preventScroll:true }); }
+      } else {
+        popup.setAttribute('aria-hidden','true');
+        fab && fab.setAttribute('aria-label','Отвори чат');
+      }
+    }catch(_){}
+
+    return wantOpen;
+  }
+  window.toggleChat = toggleChat;
+
+  // Делегирани обработчици (capture), за да работи и ако елементите се местят
+  document.addEventListener('click', function(e){
+    var btn   = e.target && (e.target.closest ? e.target.closest('#chatFab')   : null);
+    var close = e.target && (e.target.closest ? e.target.closest('#chatClose') : null);
+    if (btn){   e.preventDefault(); toggleChat(); }
+    if (close){ e.preventDefault(); toggleChat(false); }
+  }, true);
+
+  // Escape затваря
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') toggleChat(false);
+  });
+})();
+</script>
+
+<!-- CHAT: hard fallback click -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){ 
+  var fab = document.getElementById('chatFab');
+  var popup = document.getElementById('chatPopup');
+  if (!fab || !popup) return;
+  fab.addEventListener('click', function(e){
+    try{ e.preventDefault(); e.stopPropagation(); }catch(_){}
+    popup.classList.toggle('open');
+  }, true);
+});
+</script>
+
+  <!-- Astro Credits: confirmation modal -->
+  
+
+
+<style>
+  /* AC: всички кредитни икони = 1.5× (27px) на синaстрия модала */
+  #creditConfirm .cc-line .ico,
+  #creditConfirm .cc-ico{
+    width: 27px !important;
+    height: 27px !important;
+    vertical-align: middle;
+  }
+</style>
+
+</body>
+</html>

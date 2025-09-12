@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+
+  <defs>
+    <radialGradient id="m-disk" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#cfcfcf"/><stop offset="70%" stop-color="#a9a9a9"/>
+      <stop offset="100%" stop-color="#7f7f7f"/>
+    </radialGradient>
+    <mask id="m-mask"><rect width="1024" height="1024" fill="#000"/><circle cx="512" cy="512" r="388" fill="#fff"/></mask>
+    <filter id="m-craters">
+      <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="3" seed="5" result="n"/>
+      <feGaussianBlur in="n" stdDeviation="1.2" result="nb"/>
+      <feDisplacementMap in="SourceGraphic" in2="nb" scale="6"/>
+    </filter>
+  </defs>
+  <g mask="url(#m-mask)">
+    <circle cx="512" cy="512" r="388" fill="url(#m-disk)" filter="url(#m-craters)"/>
+    <!-- simple craters -->
+    <g opacity=".45">
+      <circle cx="430" cy="430" r="24" fill="#6f6f6f"/>
+      <circle cx="600" cy="520" r="18" fill="#6a6a6a"/>
+      <circle cx="520" cy="590" r="14" fill="#646464"/>
+      <circle cx="570" cy="420" r="12" fill="#6d6d6d"/>
+      <circle cx="450" cy="580" r="10" fill="#666"/>
+    </g>
+  </g>
+
+</svg>

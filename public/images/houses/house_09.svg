@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <style>
+      .num { font: 88px  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
+              font-weight: 900; fill: #000; }
+    </style>
+  </defs>
+  <!-- transparent canvas by default -->
+  <text x="50%" y="50%" class="num" dominant-baseline="middle" text-anchor="middle">9</text>
+</svg>

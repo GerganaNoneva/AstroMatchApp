@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=Libertinus+Sans:ital,wght@0,400;0,700;1,400&display=swap');
+
+body {
+  background: url("images/backgroud.png") center center / cover no-repeat;
+  background-attachment: fixed;
+}
+
+/* Modal base */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+}
+.modal.hidden { display: none; }
+
+.modal-content {
+  background: linear-gradient(180deg, #e5d4ff, #b08dfd);
+  padding: 1rem;
+  border-radius: 20px;
+  width: min(90%, 400px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.modal-title {
+  text-align: center;
+  color: #4c1d95;
+  margin-bottom: 1rem;
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: #4c1d95;
+  cursor: pointer;
+}
+
+/* Form */
+.birth-form { display: flex; flex-direction: column; gap: 1rem; }
+.birth-form label { font-weight: 600; font-size:0.8rem; color: #4c1d95; }
+.birth-form input[type="text"],
+.birth-form input[type="date"],
+.birth-form input[type="time"] {
+  width: 100%; padding: 0.6rem; border: none; border-radius: 8px;
+}
+.birth-form .row-inline { display: flex; gap: 0.5rem; }
+.birth-form .cta {
+  background: linear-gradient(135deg, #dcd0ff 0%, #5b21b6 100%);
+  border: none; border-radius: 48px; padding: 0.9rem; font-size: 1rem;
+  font-weight: 600; color: white; cursor: pointer;
+}
+.birth-form .cta:hover { transform: scale(1.03); }
+.birth-form .cta.small { padding: 0.5rem 1rem; font-size: 0.9rem; }
+
+/* Videos (unchanged) */
+.video-section { display: flex; justify-content: space-between; gap: 1.5rem; padding: 3rem 2rem; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; }
+.video-card { flex: 1 1 22%; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.85); border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); padding: 1rem; transition: transform 0.3s ease; }
+.video-card:hover { transform: scale(1.03); }
+.video-card video { width: 100%; height: 200px; object-fit: cover; border-radius: 20px; }
+.video-card p { margin-top: 1rem; font-weight: 700; font-size: 1.1rem; color: #4c1d95; text-align: center; }
+
+.video-grid { display: flex; justify-content: space-between; align-items: flex-start; padding: 2vh 2vw; gap: 1vw; height: calc(100vh - 100px); box-sizing: border-box; }
+.video-item { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; max-width: 22%; text-decoration: none; color: inherit; }
+.video-item video { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 9/16; border-radius:20px 20px 0 0; transition: transform 0.3s ease; }
+.video-item p {
+  font-family: "Libertinus Sans", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 1.5rem;
+  color: rgb(216, 169, 243);
+  width: 100%; margin: 0; padding: 0.5rem 0 0;
+  text-align: center; background-color: rgb(42, 11, 74);
+  border-radius: 0 0 20px 20px; cursor: pointer;
+}
+.video-item:hover video, .video-item p:hover + video { pointer-events: auto; }
+
+#videoLoader { position: fixed; inset: 0; z-index: 9999; background: black; display: flex; justify-content: center; align-items: center; }
+#videoLoader video { width: 100vw; height: 100vh; object-fit: cover; }
+#videoLoader.hidden { display: none; }
+
+/* Поле със списък с градове */
+#myCityResults, #addCityResults {
+  width:100%; margin-top:.5rem; padding:.35rem;
+  border-radius:8px; border:1px solid #cbd5e1; background:#fff; font-size:.9rem;
+}
+
+/* Резюме */
+.birth-summary {
+  font-size: 1.35rem; font-weight: 600; line-height: 1.45;
+  white-space: pre-wrap; text-align: center; color: #4c1d95;
+}
+/* по подразбиране хоризонтално (за „Добави профил“) */
+.summary-buttons {
+  display: flex; flex-direction: row; justify-content: center; align-items: center;
+  gap: 1rem; margin-top: 1.5rem;
+}
+/* вертикално за „Данни“ */
+.summary-buttons.column { flex-direction: column; }
+
+/* Размери/позициониране – същите за двата модала */
+#myDataModal .modal-content,
+#addProfileModal .modal-content {
+  width: min(85%, 450px);
+  padding: 1rem 1.2rem;
+  transform: translateY(10vh) scale(0.7);
+  transform-origin: top center;
+}
+#myDataModal .birth-form, #addProfileModal .birth-form { gap: .55rem; }
+#myDataModal .birth-form .form-group, #addProfileModal .birth-form .form-group { gap: .2rem; }
+
+/* Голям селект за Управление на профили – да е „като бутона“ по размер */
+.select-large {
+  display: block;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  border: 2px solid #cbd5e1;
+  border-radius: 48px;
+  background: #ffffff;
+  appearance: none;              /* скрива системната стрелка (по възможност) */
+  background-image: linear-gradient(135deg, #ffffff, #ffffff);
+}
+
+/* по желание: лек hover за усещане като бутон */
+.select-large:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
+  transform: translateY(-1px);
+  transition: all .2s ease;
+}
+
+/* Компактен вид за модала "Запазени данни" */
+#manageModal .modal-content.saved-compact {
+  max-height: 82vh;           /* да остане въздух около модала */
+  width: min(92vw, 720px);    /* разумна ширина */
+  overflow: auto;             /* скрол само ако прелее */
+  padding: 0.8rem 1rem;
+}
+
+/* Намалени размери вътре */
+#manageModal .saved-compact .modal-title {
+  font-size: 1rem;
+  margin-bottom: .5rem;
+}
+#manageModal .saved-compact .form-group,
+#manageModal .saved-compact .field-group {
+  margin-bottom: .45rem;
+}
+#manageModal .saved-compact label {
+  font-size: .85rem;
+  margin-bottom: .15rem;
+}
+#manageModal .saved-compact input[type="text"],
+#manageModal .saved-compact input[type="date"],
+#manageModal .saved-compact input[type="time"],
+#manageModal .saved-compact select {
+  font-size: .85rem;
+  height: 2rem;
+  padding: .25rem .5rem;
+  border-radius: 8px;
+}
+#manageModal .saved-compact .row-inline { gap: .4rem; }
+#manageModal .saved-compact .cta,
+#manageModal .saved-compact button {
+  font-size: .9rem;
+  padding: .45rem .8rem;
+  border-radius: 10px;
+}
+#manageModal .saved-compact .form-actions {
+  display: flex; gap: .5rem; margin-top: .5rem;
+}
+/* Компактен вид за модала "Запазени данни" */
+#manageModal .modal-content.saved-compact {
+  max-height: 82vh;           /* да остане въздух около модала */
+  width: min(92vw, 720px);    /* разумна ширина */
+  overflow: auto;             /* скрол само ако прелее */
+  padding: 0.8rem 1rem;
+}
+
+/* Намалени размери вътре */
+#manageModal .saved-compact .modal-title {
+  font-size: 1rem;
+  margin-bottom: .5rem;
+}
+#manageModal .saved-compact .form-group,
+#manageModal .saved-compact .field-group {
+  margin-bottom: .45rem;
+}
+#manageModal .saved-compact label {
+  font-size: .85rem;
+  margin-bottom: .15rem;
+}
+#manageModal .saved-compact input[type="text"],
+#manageModal .saved-compact input[type="date"],
+#manageModal .saved-compact input[type="time"],
+#manageModal .saved-compact select {
+  font-size: .85rem;
+  height: 2rem;
+  padding: .25rem .5rem;
+  border-radius: 8px;
+}
+#manageModal .saved-compact .row-inline { gap: .4rem; }
+#manageModal .saved-compact .cta,
+#manageModal .saved-compact button {
+  font-size: .9rem;
+  padding: .45rem .8rem;
+  border-radius: 10px;
+}
+#manageModal .saved-compact .form-actions {
+  display: flex; gap: .5rem; margin-top: .5rem;
+}
+/* Контейнер за час и DST отметка */
+.time-dst-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Свито поле за час */
+.time-dst-group input[type="time"] {
+  width: 70px;          /* много тясно поле */
+  font-size: 0.85rem;
+  padding: 0.15rem;
+  height: 1.8rem;
+}
+
+/* Стил за отметката и етикета DST */
+.time-dst-group label {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.time-dst-group input[type="checkbox"] {
+  transform: scale(0.9);
+}
+
+/* === OVERRIDES: Make "Моите данни" modal almost full screen === */
+#myDataModal .modal-content{
+  width: min(96vw, 1200px) !important;
+  max-height: 90vh !important;
+  transform: translateY(6vh) scale(1) !important;
+}
+
+@media (max-width: 768px){
+  #myDataModal .modal-content{
+    width: 96vw !important;
+    max-height: 92vh !important;
+    transform: translateY(4vh) scale(1) !important;
+  }
+}
+
+
+/* Profile menu fallback styles */
+
+#profileMenu{ position:absolute; top:64px; right:16px; z-index:9999; }
+#profileMenu.hidden{ display:none; }
+#profileMenu .pmenu-card{ background:#fff; border:1px solid #e6e6ef; box-shadow:0 8px 24px rgba(0,0,0,.08); border-radius:12px; padding:6px; min-width:220px; }
+#profileMenu .pmenu-item{ display:block; width:100%; border:0; background:transparent; text-align:left; font:inherit; padding:10px 12px; border-radius:8px; cursor:pointer; }
+#profileMenu .pmenu-item:hover{ background:#f4f2ff; }
