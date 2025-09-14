@@ -445,6 +445,27 @@
 .analyze-footer .cta { margin-bottom: 0 !important; }
 </style>
 
+<style>
+  /* Desktop-only: action бутоните по-високо и един до друг */
+  @media (min-width: 701px){
+    #natalModal .btns-row{
+      display: flex !important;
+      flex-wrap: nowrap;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+      margin-top: 12px !important; /* вдигаме ги малко */
+    }
+    /* Нулираме предишното grid поведение */
+    #natalModal #saveChoose,
+    #natalModal #deleteProfile,
+    #natalModal #clearForm{
+      grid-column: auto !important;
+    }
+  }
+</style>
+
+
 <style>/* AC: chat above analyze footer */
 /* Дръж чата над футъра и го повдигни малко, за да не се застъпват */
 .analyze-footer{ z-index: 99990 !important; }

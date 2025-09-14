@@ -2,7 +2,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import json, re, os
+from dotenv import load_dotenv
+load_dotenv()
 
+
+import os
+openai_key = os.getenv("OPENAI_API_KEY")
 app = FastAPI(title="AstroChat BG")
 
 # Enable CORS (adjust origins in production)
