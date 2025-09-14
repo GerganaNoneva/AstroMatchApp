@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+
+  web:
+    image: ghcr.io/gergananoneva/astromatchapp-web:latest
+    restart: unless-stopped
+    depends_on:
+      - api
+    env_file:
+      - .env
+
+  api:
+    image: ghcr.io/gergananoneva/astromatchapp-api:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+
+  watchtower:
+    image: containrrr/watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30
+
+volumes:
+  caddy_data:
+  caddy_config:
