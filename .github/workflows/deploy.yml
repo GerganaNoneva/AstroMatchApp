@@ -1,0 +1,60 @@
+name: Deploy to Hetzner VPS
+
+on:
+  push:
+    branches: [ "main" ]   # ако ползваш master, смени на master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (for version info only)
+        uses: actions/checkout@v4
+
+      - name: SSH into server and deploy
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          script: |
+            set -e
+            cd ${{ secrets.APP_DIR }}
+
+            echo "[1/5] Git pull…"
+            git fetch --all
+            git reset --hard origin/main
+
+            echo "[2/5] Python deps…"
+            if [ ! -d venv ]; then
+              python3 -m venv venv
+            fi
+            ./venv/bin/pip install --upgrade pip
+            if [ -f requirements.txt ]; then
+              ./venv/bin/pip install -r requirements.txt
+            fi
+
+            echo "[3/5] Node deps + build…"
+            if [ -f package-lock.json ] || [ -f package.json ]; then
+              npm ci --no-audit --no-fund
+              # ако имаш фронтенд билд, остави следния ред; ако нямаш — може да го махнеш
+              if npm run | grep -q " build"; then
+                npm run build
+              fi
+            fi
+
+            echo "[4/5] Миграции (ако имаш) …"
+            # примери (коментирани – махни # ако ползваш):
+            # ./venv/bin/python manage.py migrate --noinput
+            # node prisma migrate deploy
+
+            echo "[5/5] Рестарт на процесите…"
+            pm2 list >/dev/null 2>&1 || pm2 save  # защита, ако не е инициализирано
+            # увери се, че и двете приложения са добавени към PM2 от Част 1
+            pm2 reload astro-node || pm2 start server.js --name astro-node
+            pm2 restart astro-bot || pm2 start venv/bin/python --name astro-bot -- app.py
+
+            pm2 save
+            echo "Готово ✅"
